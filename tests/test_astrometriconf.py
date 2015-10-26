@@ -13,6 +13,20 @@
 
 
 import unittest
+from ..bin.astrometriconf import *
+
+
+class TestGetFitsFilenames(unittest.TestCase):
+    """
+    Test to confirm specified source directory is a valid directory
+    """
+    def setUp(self):
+        self.source_directory_1 = "../"
+        self.source_directory_2 = "../README.md"
+
+
+    def test_get_fits_filenames(self):
+        self.assertRaises(ValueError, get_fits_filenames(self.source_directory_2))
 
 
 class TestBuildDataframe(unittest.TestCase):

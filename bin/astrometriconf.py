@@ -12,6 +12,18 @@
 """
 
 
+import os
+
+
+def get_fits_filenames(source_directory):
+    """
+    Returns list of specified source directory contents if valid directory
+    """
+    if os.path.isdir(source_directory):
+        return os.listdir(source_directory)
+    raise ValueError(source_directory+" is not a valid directory.")
+
+
 def build_dataframe():
     """
     """
@@ -38,7 +50,7 @@ def generate_astro_config():
 
 
 if __name__=="__main__":
-    unprocessed_fits = []
+    unprocessed_fits = get_fits_filenames(source_directory)
     new_frame = build_dataframe(unprocessed_fits)
     filtered_frame = passes_master(new_frame)
     modified_fits = solve_field(filtered_frame)
