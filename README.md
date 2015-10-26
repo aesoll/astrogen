@@ -1,8 +1,8 @@
-# astrometrica-gen
-A program to modify FITS file metadata for the purpose of generating Astrometrica configuration files. 
+# astrometriconf
+A program to modify FITS file metadata for the purpose of generating Astrometrica compatible configuration files. 
 
 ## Requirements
-* Python 2.7 + pandas
+* Python 2.7 + click
 
 ## Installation
 
