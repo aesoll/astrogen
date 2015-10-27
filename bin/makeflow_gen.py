@@ -27,18 +27,23 @@ def get_fits_filenames(fits_source_directory):
     raise ValueError(fits_source_directory + " is not a valid directory.")
 
 
-def makeflow_gen(fits_filenames):
+def makeflow_gen(fits_filenames, fits_source_directory):
     """
     Write out contents of fits_filenames to properly formatted makeflow file.
     """
     makeflow_file = open("file", "w")
+    count = 0
 
     for item in fits_filenames:
         makeflow_file.write(
-            "" + "\n"
+            "output_" + str(count) + ": " +
+            "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
+            fits_source_directory + item + "\n"
         )
         makeflow_file.write(
-            "" + "\n\n"
+            "\t" +
+            "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
+            fits_source_directory + item + "-o output_" + str(count) + "\n\n"
         )
 
     return None
@@ -48,8 +53,10 @@ def main():
     """
     Call get_fits_filenames and makeflow_gen with appropriate arguments.
     """
-    fits_filenames = get_fits_filenames(str(sys.argv[1]))
-    makeflow_gen(fits_filenames)
+    fits_source_directory = str(sys.argv[1])
+    fits_filenames = get_fits_filenames(fits_source_directory)
+    makeflow_gen(fits_filenames, fits_source_directory)
+    
     return None
 
 
