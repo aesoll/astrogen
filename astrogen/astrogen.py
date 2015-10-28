@@ -33,13 +33,16 @@ class Astrogen(object):
 
     """
     def __init__(self):
-        # read config file
+
+        # get iPlant params from config file, ask for user and password
         config_path = \
             os.path.join(__pkg_root__, os.pardir, 'resources', 'astrogen.cfg')
         with open(config_path) as f:
             cfg = Config(f)
             self.iplant_params = dict(cfg.iplant_login_details)
             self.max_batch_size = cfg.batch_details.max_batch_size
+        self.user = raw_input("Enter iPlant username: ")
+        self.password = raw_input("Enter iPlant password: ")
 
         # set up temporary local file directory
         tempfile.tempdir = os.path.join(__pkg_root__, 'resources', 'fits_files')
@@ -79,8 +82,6 @@ class Astrogen(object):
     def _get_cleaned_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
         iplant_params = self.iplant_params
-        user = raw_input("Enter iPlant username: ")
-        password = raw_input("Enter iPlant password: ")
 
         logging.info("Logging in to {} as {} ...".
                      format(iplant_params['host'], user))
@@ -88,8 +89,8 @@ class Astrogen(object):
         sess = iRODSSession(
             host=iplant_params['host'],
             port=iplant_params['port'],
-            user=iplant_params['user'],
-            password=iplant_params['password'],
+            user=self.user,
+            password=self.password,
             zone=iplant_params['zone']
         )
         coll = sess.collections.get(iplant_params['iplant_path'])

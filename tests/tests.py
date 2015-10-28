@@ -18,7 +18,7 @@ class TestAstrogen(unittest.TestCase):
             'host': 'bitol.iplantcollaborative.org',
             'port': 1247,
             'zone': 'iplant',
-            'iplant_path': '/iplant/home/dsidi/astrometry/test_fits'
+            'iplant_path': '/iplant/home/david_sidi/astrometry/test_fits'
         }
 
     def test_get_cleaned_data_objects(self):
@@ -49,8 +49,11 @@ class TestAstrogen(unittest.TestCase):
 
     def test_iplant_fetch(self):
         self.test_coll_path = '/iplant/home/elyons/ACIC/midterm-Carl-Hergenrother'
-        user = raw_input("Enter username: ")
-        password = raw_input("Enter password: ")
+
+        # get user and pword from user entry when astrogen was constructed
+        user = self.ag.user
+        password = self.ag.password
+
         self.sess = iRODSSession(host=__irods_server_host__,
                                  port=__irods_server_port__,
                                  user=user,
