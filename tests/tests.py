@@ -4,7 +4,7 @@ from textwrap import dedent
 import config
 from irods.session import iRODSSession
 import unittest
-import astrogen.astrogen
+from astrogen import astrogen
 
 __irods_server_host__ = 'bitol.iplantcollaborative.org'
 __irods_server_port__ = "1247"
@@ -12,7 +12,7 @@ __irods_server_zone__ = "iplant"
 
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
-        self.test_coll_path = 'iplant/home/elyons/ACIC/midterm-Carl-Hergenrother'
+        self.test_coll_path = '/iplant/home/elyons/ACIC/midterm-Carl-Hergenrother'
         user = raw_input("Enter username: ")
         password = raw_input("Enter password: ")
         self.sess = iRODSSession(host=__irods_server_host__,
@@ -21,9 +21,7 @@ class TestAstrogen(unittest.TestCase):
                                  password=password,
                                  zone=__irods_server_zone__)
         # Create test collection
-        self.test_coll = self.sess.collections.create(self.test_coll_path)
-        # Create test object and write to it
-        self.test_obj = self.sess.data_objects.create(self.test_obj_path)
+        self.test_coll = self.sess.collections.get(self.test_coll_path)
 
     def test_logging(self):
         try:
@@ -38,7 +36,6 @@ class TestAstrogen(unittest.TestCase):
             os.remove(config_path)
         except OSError:
             pass
-        self.test_coll.remove(recurse=True, force=True)
         self.sess.cleanup()
 
 
