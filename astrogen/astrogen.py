@@ -38,7 +38,7 @@ class Astrogen(object):
             os.path.join(__pkg_root__, os.pardir, 'resources', 'astrogen.cfg')
         with open(config_path) as f:
             cfg = Config(f)
-            self.iplant_params = dict(cfg.iplant_login_details).values()
+            self.iplant_params = dict(cfg.iplant_login_details)
             self.max_batch_size = cfg.batch_details.max_batch_size
 
         # set up temporary local file directory
@@ -78,20 +78,21 @@ class Astrogen(object):
 
     def _get_cleaned_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
+        iplant_params = self.iplant_params
         user = raw_input("Enter iPlant username: ")
         password = raw_input("Enter iPlant password: ")
-        host, port, zone, iplant_path = self.iplant_params
 
-        logging.info("Logging in to {} as {} ...".format(host, user))
+        logging.info("Logging in to {} as {} ...".
+                     format(iplant_params['host'], user))
 
         sess = iRODSSession(
-            host=host,
-            port=port,
-            user=user,
-            password=password,
-            zone=zone
+            host=iplant_params['host'],
+            port=iplant_params['port'],
+            user=iplant_params['user'],
+            password=iplant_params['password'],
+            zone=iplant_params['zone']
         )
-        coll = sess.collections.get(iplant_path)
+        coll = sess.collections.get(iplant_params['iplant_path'])
         data_objects = coll.data_objects
         cleaned_data_objects = \
             filter(lambda x: x.name.endswith('.fits') or

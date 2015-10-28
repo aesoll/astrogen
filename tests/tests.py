@@ -14,12 +14,12 @@ __irods_server_zone__ = "iplant"
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
         self.ag = Astrogen()
-        self.ag.iplant_params = (
-            'bitol.iplantcollaborative.org',  # host
-            1247,  # port
-            'iplant',  # zone
-            '/iplant/home/dsidi/astrometry/test_fits'  # testing path
-        )
+        self.ag.iplant_params = {
+            'host': 'bitol.iplantcollaborative.org',
+            'port': 1247,
+            'zone': 'iplant',
+            'iplant_path': '/iplant/home/dsidi/astrometry/test_fits'
+        }
 
     def test_get_cleaned_data_objects(self):
         cleaned_objs = self.ag._get_cleaned_data_objects()
