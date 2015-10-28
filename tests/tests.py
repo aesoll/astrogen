@@ -4,7 +4,7 @@ from textwrap import dedent
 import config
 from irods.session import iRODSSession
 import unittest
-from astrogen.astrogen import Astrogen
+import astrogen.astrogen
 
 __irods_server_host__ = 'bitol.iplantcollaborative.org'
 __irods_server_port__ = "1247"
@@ -27,16 +27,16 @@ class TestAstrogen(unittest.TestCase):
 
     def test_logging(self):
         try:
-            if path.exists(path.join(Astrogen.__pkg_root__, 'astropy.log')):
+            if path.exists(path.join(astrogen.__pkg_root__, 'astropy.log')):
                 assert True
-        except IOError:
+        except OSError:
             assert False
 
     def tearDown(self):
         config_path = path.join(path.curdir, 'test_config.cfg')
         try:
             os.remove(config_path)
-        except IOError:
+        except OSError:
             pass
         self.test_coll.remove(recurse=True, force=True)
         self.sess.cleanup()
