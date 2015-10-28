@@ -17,7 +17,8 @@ import tempfile
 import logging
 import scandir
 from config import Config
-from datetime import datetime, time
+from datetime import datetime
+import time
 from astropy.io import fits
 from irods.session import iRODSSession
 
@@ -33,9 +34,11 @@ class Astrogen(object):
     """
     def __init__(self):
         # read config file
-        with open(os.path.join(__pkg_root__, 'resources', 'astrogen.cfg')) as f:
+        config_path = \
+            os.path.join(__pkg_root__, os.pardir, 'resources', 'astrogen.cfg')
+        with open(config_path) as f:
             cfg = Config(f)
-            self.iplant_params = cfg.iplant_login_details.values()
+            self.iplant_params = dict(cfg.iplant_login_details).values()
             self.max_batch_size = cfg.batch_details.max_batch_size
 
         # set up temporary local file directory
