@@ -12,7 +12,7 @@ __irods_server_zone__ = "iplant"
 
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
-        coll_path = 'iplant/home/elyons/ACIC/midterm-Carl-Hergenrother'
+        test_coll_path = 'iplant/home/elyons/ACIC/midterm-Carl-Hergenrother'
         user = raw_input("Enter username: ")
         password = raw_input("Enter password: ")
         self.sess = iRODSSession(host=__irods_server_host__,
