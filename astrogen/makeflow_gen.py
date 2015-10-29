@@ -51,7 +51,7 @@ def makeflow_gen(fits_filenames, fits_source_directory):
               '--overwrite ' \
               '{}'.format(backend_config_path, filepath)
         makeflow_file.write(
-            "output_" + str(count) + ": " + cmd)
+            "output_" + str(count) + ": " + cmd + "\n")
         # TODO rm
         #     "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
         #     fits_source_directory + item + "\n"
