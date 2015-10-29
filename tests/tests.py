@@ -4,8 +4,7 @@ from textwrap import dedent
 import config
 from irods.session import iRODSSession
 import unittest
-from astrogen import astrogen
-from astrogen.astrogen import Astrogen
+import astrogen
 
 __irods_server_host__ = 'bitol.iplantcollaborative.org'
 __irods_server_port__ = "1247"
@@ -15,7 +14,7 @@ __test_dir__ = os.path.dirname(__file__)
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
         astrogen.__batch_dir__ = os.path.join(__test_dir__, 'fits_files')
-        self.ag = Astrogen()
+        self.ag = astrogen.Astrogen()
         self.ag.iplant_params = {
             'host': 'bitol.iplantcollaborative.org',
             'port': 1247,
