@@ -43,7 +43,7 @@ def makeflow_gen(fits_filenames, fits_source_directory):
 
     for item in fits_filenames:
         filepath = os.path.join(abs_batch_path, item)
-        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/astrometry.net\-0.50/blind/solve-field' \
+        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/astrometry.net\-0.50/blind/solve-field ' \
               '-u app ' \
               '-L 0.3 ' \
               '-H 3.0 ' \
