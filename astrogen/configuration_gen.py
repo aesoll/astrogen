@@ -9,7 +9,7 @@
 #   Adam Soll (adamsoll@email.arizona.edu)
 #   Matthew Shanks (mcshanks@email.arizona.edu)
 """
-
+Generates a new configuration file for use with Astrometrica
 """
 from astropy.io import fits
 
@@ -20,10 +20,11 @@ __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
 
 
 class ConfigFile(object):
-    """
-    """
     def __init__(self, fits_filename, template_filename):
         """
+        Initialize instance variables representing the fits filename,
+        the template for the configuration file, the new configuration file
+        output name, and the two parameters to replace. 
         """
         self.fits_file = fits.open(fits_filename)
         self.template_filename = ""
@@ -34,6 +35,7 @@ class ConfigFile(object):
 
     def set_fits_headers(self):
         """
+        Sets instance variables for extracted header values.
         """
         self.extracted_header_1 = self.fits_file.header[""]
         self.extracted_header_2 = self.fits_file.header[""]
@@ -41,6 +43,8 @@ class ConfigFile(object):
 
     def set_new_cfg_headers(self):
         """
+        Creates a new file based on self.new_cfg_filename and replaces necessary
+        parameters.
         """
         template = open(template_filename, "r")
         new_cfg = open(self.new_cfg_filename, "w")
