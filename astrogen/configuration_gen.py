@@ -32,7 +32,7 @@ class ConfigFile(object):
         self.cfg_param_2 = "PA"
 
 
-	def set_fits_headers(self):
+    def set_fits_headers(self):
         """
         """
         self.extracted_header_1 = self.fits_file.header[""]
