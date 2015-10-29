@@ -43,21 +43,21 @@ def makeflow_gen(fits_filenames, fits_source_directory):
 
     for item in fits_filenames:
         filepath = os.path.join(abs_batch_path, item)
-        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/astrometry.net\-0.50/blind/solve-field ' \
+        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
               '-u app ' \
               '-L 0.3 ' \
               '-H 3.0 ' \
               '--backend-config {} ' \
               '--overwrite ' \
               '{}'.format(backend_config_path, filepath)
+        file_name = '{}'.format(backend_config_path, filepath)
         makeflow_file.write(
-            "output_" + str(count) + ": " + cmd + "\n")
+            "output_" + str(count) + ": " + file_name + "\n")
         # TODO rm
         #     "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
         #     fits_source_directory + item + "\n"
         # )
-        makeflow_file.write(
-            "\t" + cmd + "-o output_" + str(count) + "\n\n")
+        makeflow_file.write("\t" + cmd + "\n\n")    # + "-o output_" + str(count) + "\n\n")
         # TODO rm
         #   "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
         #   fits_source_directory + item + "-o output_" + str(count) + "\n\n"
