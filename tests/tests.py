@@ -10,9 +10,11 @@ from astrogen.astrogen import Astrogen
 __irods_server_host__ = 'bitol.iplantcollaborative.org'
 __irods_server_port__ = "1247"
 __irods_server_zone__ = "iplant"
+__test_dir__ = os.path.dirname(__file__)
 
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
+        astrogen.__batch_dir__ = os.path.join(__test_dir__, 'fits_files')
         self.ag = Astrogen()
         self.ag.iplant_params = {
             'host': 'bitol.iplantcollaborative.org',
@@ -37,12 +39,17 @@ class TestAstrogen(unittest.TestCase):
         ]
         self.assertListEqual(names, correct_names)
 
+    def test_solve_batch_astronomy(self):
+        """Assumes known files in tests/fits_files"""
+        self.ag._solve_batch_astrometry()
+
     def test_batching(self):
         assert True
 
     def test_logging(self):
         try:
-            if path.exists(path.join(astrogen.__pkg_root__, 'astropy.log')):
+            if path.exists(path.join(astrogen.__pkg_root__, os.pardir,
+                                     'resources', 'astrogen.log')):
                 assert True
         except OSError:
             assert False

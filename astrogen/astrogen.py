@@ -11,8 +11,10 @@
 """
 Preprocess image files in fits format to be input to astronomy.
 """
+from glob import glob
 import os
 import re
+import subprocess
 import tempfile
 import logging
 import scandir
@@ -23,6 +25,8 @@ from astropy.io import fits
 from irods.session import iRODSSession
 
 __pkg_root__ = os.path.dirname(__file__)
+__resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
+__batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
 
 
 # TODO class docs
@@ -36,7 +40,7 @@ class Astrogen(object):
 
         # get iPlant params from config file, ask for user and password
         config_path = \
-            os.path.join(__pkg_root__, os.pardir, 'resources', 'astrogen.cfg')
+            os.path.join(__resources_dir__, 'astrogen.cfg')
         with open(config_path) as f:
             cfg = Config(f)
             self.iplant_params = dict(cfg.iplant_login_details)
@@ -71,20 +75,46 @@ class Astrogen(object):
                 self._add_to_local_batch(data_object)
                 current_batch_size = self._get_dir_size('.')
             else:
-                # TODO call astronomy.net stuff on this batch
-                # TODO clear this batch from directory
+                # call astronomy.net stuff on this batch
+                self._solve_batch_astrometry()
+
+                # clear this batch from directory
+                all_batched_fits_files = glob(os.path.join(__batch_dir__, '*.fits'))
+                os.remove(all_batched_fits_files)
                 current_batch_size = 0
 
-            pass
-
     # PRIVATE #################################################################
+
+    def _solve_batch_astrometry(self):
+        """Run astrometry on a batch of local files.
+
+        Assumes only FITS files in the directory.
+        Assumes a working solve-field on your path.
+        """
+        abs_resources_path = os.path.abspath(__resources_dir__)
+        abs_batch_path = os.path.abspath(__batch_dir__)
+        for filename in os.listdir(__batch_dir__):
+            filepath = os.path.join(abs_batch_path, filename)
+            try:
+                backend_config_path = \
+                    os.path.join(abs_resources_path, 'astrometry.cfg')
+                cmd = 'solve-field ' \
+                      '-u app ' \
+                      '-L 0.3 ' \
+                      '-H 3.0 ' \
+                      '--backend-config {} ' \
+                      '--overwrite ' \
+                      '{}'.format(backend_config_path, filepath)
+                subprocess.check_output(cmd, shell=True)
+            except:  # TODO make this more specific
+                logging.error('Filename {} could not be solved.'.format(filename))
 
     def _get_cleaned_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
         iplant_params = self.iplant_params
 
         logging.info("Logging in to {} as {} ...".
-                     format(iplant_params['host'], user))
+                     format(iplant_params['host'], self.user))
 
         sess = iRODSSession(
             host=iplant_params['host'],

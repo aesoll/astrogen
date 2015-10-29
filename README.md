@@ -3,6 +3,8 @@ A program to modify FITS file metadata for the purpose of generating Astrometric
 
 ## Requirements
 * Python 2.7 + click
+* Working solve-field from astronomy.net on your path
+* pyfits
 
 ## Installation
 
