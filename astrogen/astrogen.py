@@ -98,7 +98,7 @@ class Astrogen(object):
             try:
                 backend_config_path = \
                     os.path.join(abs_resources_path, 'astrometry.cfg')
-                cmd = 'solve-field ' \
+                cmd = '/home/u3/pbieberstein/osiris/astrometry.net-0.50/solve-field ' \
                       '-u app ' \
                       '-L 0.3 ' \
                       '-H 3.0 ' \
