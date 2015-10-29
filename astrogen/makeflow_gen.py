@@ -16,6 +16,7 @@ solve_field.
 
 import sys
 import os
+import astrogen
 
 
 def get_fits_filenames(fits_source_directory):
@@ -31,19 +32,36 @@ def makeflow_gen(fits_filenames, fits_source_directory):
     """
     Write out contents of fits_filenames to properly formatted makeflow file.
     """
-    makeflow_file = open("file", "w")
+    makeflow_path = \
+        os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
+    makeflow_file = open(makeflow_path, "w")
     count = 0
+    abs_resources_path = os.path.abspath(astrogen.__resources_dir__)
+    abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
+    backend_config_path = \
+        os.path.join(abs_resources_path, 'astrometry.cfg')
 
     for item in fits_filenames:
+        filepath = os.path.join(abs_batch_path, item)
+        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
+              '-u app ' \
+              '-L 0.3 ' \
+              '-H 3.0 ' \
+              '--backend-config {} ' \
+              '--overwrite ' \
+              '{}'.format(backend_config_path, filepath)
         makeflow_file.write(
-            "output_" + str(count) + ": " +
-            fits_source_directory + item + "\n"
-        )
+            "output_" + str(count) + ": " + cmd + "\n")
+        # TODO rm
+        #     "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
+        #     fits_source_directory + item + "\n"
+        # )
         makeflow_file.write(
-            "\t" +
-            "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
-            fits_source_directory + item + "-o output_" + str(count) + "\n\n"
-        )
+            "\t" + cmd + "-o output_" + str(count) + "\n\n")
+        # TODO rm
+        #   "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
+        #   fits_source_directory + item + "-o output_" + str(count) + "\n\n"
+        # )
         count += 1
 
     return None

@@ -23,6 +23,7 @@ from datetime import datetime
 import time
 from astropy.io import fits
 from irods.session import iRODSSession
+import makeflow_gen
 
 __pkg_root__ = os.path.dirname(__file__)
 __resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
@@ -91,23 +92,8 @@ class Astrogen(object):
         Assumes only FITS files in the directory.
         Assumes a working solve-field on your path.
         """
-        abs_resources_path = os.path.abspath(__resources_dir__)
         abs_batch_path = os.path.abspath(__batch_dir__)
-        for filename in os.listdir(__batch_dir__):
-            filepath = os.path.join(abs_batch_path, filename)
-            try:
-                backend_config_path = \
-                    os.path.join(abs_resources_path, 'astrometry.cfg')
-                cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
-                      '-u app ' \
-                      '-L 0.3 ' \
-                      '-H 3.0 ' \
-                      '--backend-config {} ' \
-                      '--overwrite ' \
-                      '{}'.format(backend_config_path, filepath)
-                subprocess.check_output(cmd, shell=True)
-            except:  # TODO make this more specific
-                logging.error('Filename {} could not be solved.'.format(filename))
+        makeflow_gen.makeflow_gen(os.listdir(__batch_dir__), abs_batch_path)
 
     def _get_cleaned_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
