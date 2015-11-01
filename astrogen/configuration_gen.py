@@ -15,6 +15,7 @@ from astropy.io import fits
 import os
 import astrogen
 import pyfits
+import sys
 
 __pkg_root__ = os.path.dirname(__file__)
 __resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
@@ -43,11 +44,11 @@ class ConfigFile(object):
         """
         Sets instance variables for extracted header values.
         """
-        self.extracted_header_1 = self.fits_file[0].header["objctra"]
-        self.extracted_header_2 = self.fits_file[0].header["objctdec"]
+        self.extracted_objctra = self.fits_file[0].header["objctra"]
+        self.extracted_objctdec = self.fits_file[0].header["objctdec"]
         print()
-        print(self.extracted_header_1)
-        print(self.extracted_header_2)
+        print("objectra: " + self.extracted_objctra)
+        print("objectdec: " + self.extracted_objctdec)
 
 
     def set_new_cfg_headers(self):
@@ -61,9 +62,9 @@ class ConfigFile(object):
 
         for line in template:
             if self.cfg_param_1 in line:
-                new_cfg.write(self.cfg_param_1 + "=" + self.extracted_header_1 +"\n")
+                new_cfg.write(self.cfg_param_1 + "=" + self.extracted_objctra +"\n")
             elif self.cfg_param_2 in line:
-                new_cfg.write(self.cfg_param_2 + "=" + self.extracted_header_2 +"\n")
+                new_cfg.write(self.cfg_param_2 + "=" + self.extracted_objctdec +"\n")
             else:
                 new_cfg.write(line)
 
