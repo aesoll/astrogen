@@ -9,7 +9,7 @@
 #   David Sidi (dsidi@email.arizona.edu)
 #   Adam Soll (adamsoll@email.arizona.edu)
 """
-Preprocess image files in fits format to be input to astronomy.
+Preprocess image files in FITS format to be input to Astrometrica.
 """
 from glob import glob
 import os
@@ -31,12 +31,12 @@ __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
 __output_dir__ = os.path.join(__pkg_root__, os.pardir, 'output')
 
 
-# TODO class docs
 class Astrogen(object):
-    """BRIEF DESCRIPTION
-
-    MORE DETAILED DESCRIPTION
-
+    """
+    Preprocess image files in FITS format to be input to Astrometrica.
+    Retrieves astronomy data in the form of FITS files from iPlant.
+    Runs astrometry on a local batch of files.
+    ---NOT DONE YET---
     """
     def __init__(self):
 
@@ -64,7 +64,8 @@ class Astrogen(object):
     # PUBLIC ##################################################################
 
     def get_astronomy(self):
-        """Gets the astronomy for the fits files in this iPlant directory.
+        """
+        Gets the astronomy data for the FITS files in this iPlant directory.
 
         Note: Nothing but .fits and .arch files are allowed.
         """
@@ -88,7 +89,8 @@ class Astrogen(object):
     # PRIVATE #################################################################
 
     def _solve_batch_astrometry(self):
-        """Run astrometry on a batch of local files.
+        """
+        Run astrometry on a batch of local files.
 
         Assumes only FITS files in the directory.
         Assumes a working solve-field on your path.
