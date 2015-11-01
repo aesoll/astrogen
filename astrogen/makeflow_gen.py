@@ -35,6 +35,10 @@ def makeflow_gen(fits_filenames, fits_source_directory):
     makeflow_path = \
         os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
     makeflow_file = open(makeflow_path, "w")
+
+    with open('foo.txt', 'w') as f:
+       f.write("BLAHBLAHBLAH")
+
     count = 0
     abs_resources_path = os.path.abspath(astrogen.__resources_dir__)
     abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
@@ -64,6 +68,7 @@ def makeflow_gen(fits_filenames, fits_source_directory):
         # )
         count += 1
 
+    makeflow_file.close()
     return None
 
 

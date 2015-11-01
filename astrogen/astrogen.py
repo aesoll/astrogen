@@ -28,6 +28,7 @@ import makeflow_gen
 __pkg_root__ = os.path.dirname(__file__)
 __resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
 __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
+__output_dir__ = os.path.join(__pkg_root__, os.pardir, 'output')
 
 
 # TODO class docs
