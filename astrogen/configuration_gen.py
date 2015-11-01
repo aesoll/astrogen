@@ -12,33 +12,42 @@
 Generates a new configuration file for use with Astrometrica
 """
 from astropy.io import fits
-
+import os
+import astrogen
+import pyfits
 
 __pkg_root__ = os.path.dirname(__file__)
 __resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
 __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
+__output_dir__ = os.path.join(__pkg_root__, os.pardir, 'output')
 
 
 class ConfigFile(object):
-    def __init__(self, fits_filename, template_filename):
+    def __init__(self):
         """
         Initialize instance variables representing the fits filename,
         the template for the configuration file, the new configuration file
         output name, and the two parameters to replace. 
         """
-        self.fits_file = fits.open(fits_filename)
-        self.template_filename = ""
-        self.new_cfg_filename = str(self.fits_file.header[""]).replace(":", "")
+        self.fits_filename = os.path.join(astrogen.__output_dir__, "solve_field_output", "example.new")
+        self.fits_file = pyfits.open(self.fits_filename)
+        self.fits_file.info()
+        self.template_filename = os.path.join(astrogen.__resources_dir__, "config_template.txt")
+        #self.new_cfg_filename = str(self.fits_file[0].header[""]).replace(":", "")
+        self.new_cfg_filename = "example_output.cfg"
         self.cfg_param_1 = "FocalLength"
         self.cfg_param_2 = "PA"
 
 
-    def set_fits_headers(self):
+    def get_fits_headers(self):
         """
         Sets instance variables for extracted header values.
         """
-        self.extracted_header_1 = self.fits_file.header[""]
-        self.extracted_header_2 = self.fits_file.header[""]
+        self.extracted_header_1 = self.fits_file[0].header["objctra"]
+        self.extracted_header_2 = self.fits_file[0].header["objctdec"]
+        print()
+        print(self.extracted_header_1)
+        print(self.extracted_header_2)
 
 
     def set_new_cfg_headers(self):
@@ -46,16 +55,22 @@ class ConfigFile(object):
         Creates a new file based on self.new_cfg_filename and replaces necessary
         parameters.
         """
-        template = open(template_filename, "r")
-        new_cfg = open(self.new_cfg_filename, "w")
+        new_cfg_path = os.path.join(astrogen.__output_dir__, "configuration_gen_output", self.new_cfg_filename)
+        template = open(self.template_filename, "r")
+        new_cfg = open(new_cfg_path, "w")
 
         for line in template:
             if self.cfg_param_1 in line:
-                new_cfg.write(self.cfg_param_1 + "=" + self.extracted_header_1)
+                new_cfg.write(self.cfg_param_1 + "=" + self.extracted_header_1 +"\n")
             elif self.cfg_param_2 in line:
-                new_cfg.write(self.cfg_param_2 + "=" + self.extracted_header_2)
-            else
+                new_cfg.write(self.cfg_param_2 + "=" + self.extracted_header_2 +"\n")
+            else:
                 new_cfg.write(line)
 
         template.close()
         new_cfg.close()
+
+if __name__=="__main__":
+    new = ConfigFile()
+    new.get_fits_headers()
+    new.set_new_cfg_headers()
