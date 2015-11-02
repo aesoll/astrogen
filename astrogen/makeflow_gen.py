@@ -48,17 +48,17 @@ def makeflow_gen(fits_filenames, fits_source_directory):
     for item in fits_filenames:
         filepath = os.path.join(abs_batch_path, item)
         cmd = \
-            'module load python &&'\
+            'module load python && '\
             '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
               '-g' \
               '-u app ' \
               '-L 0.3 ' \
               '-p' \
-              '--cpulimit 600' \
-              '--wcs none' \
-              '--corr none' \
-              '--scamp-ref none' \
-              '--pnm none' \
+              '--cpulimit 600 ' \
+              '--wcs none ' \
+              '--corr none ' \
+              '--scamp-ref none ' \
+              '--pnm none ' \
               '-H 3.0 ' \
               '--backend-config {} ' \
               '--overwrite ' \
