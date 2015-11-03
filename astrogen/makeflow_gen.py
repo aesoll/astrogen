@@ -12,8 +12,6 @@
 Generates a makeflow file for processing FITS files with the astrometry software 
 solve_field.
 """
-
-
 import sys
 import os
 import astrogen
@@ -28,9 +26,11 @@ def get_fits_filenames(fits_source_directory):
     raise ValueError(fits_source_directory + " is not a valid directory.")
 
 
-def makeflow_gen(fits_filenames, fits_source_directory):
-    """
-    Write out contents of fits_filenames to properly formatted makeflow file.
+def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
+    """Write out contents of fits_filenames to properly formatted makeflow file.
+
+    :param path_to_netpbm: The absolute path to netpbm.
+    :param path_to_solve_field: The absolute path to solve field.
     """
     makeflow_path = \
         os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
@@ -41,10 +41,14 @@ def makeflow_gen(fits_filenames, fits_source_directory):
     abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
     backend_config_path = \
         os.path.join(abs_resources_path, 'astrometry.cfg')
-    makeflow_file.write("export PATH=/home/u12/ericlyons/bin/newnetpbm/bin:$PATH\n")  # This should only appear once at the top
+
+    # This should only appear once at the top
+    makeflow_file.write("export PATH={}:{}:$PATH\n".
+                        format(path_to_solve_field, path_to_netpbm))
+
     for item in fits_filenames:
         filepath = os.path.join(abs_batch_path, item)
-        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
+        cmd = 'solve-field ' \
               '-u app ' \
               '-L 0.3 ' \
               '-p ' \
@@ -57,19 +61,11 @@ def makeflow_gen(fits_filenames, fits_source_directory):
               '--backend-config {} ' \
               '--overwrite ' \
               '{}'.format(backend_config_path, filepath)
-        file_name = '{}'.format(backend_config_path, filepath)
         makeflow_file.write(
-            "none"+ str(count) + " : " + filepath + " /gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field " + \
+            "none" + str(count) + " : " + filepath +
+            " /gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field " + \
             "\n")
-        # TODO rm
-        #     "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
-        #     fits_source_directory + item + "\n"
-        # )
-        makeflow_file.write("\tmodule load python && " + cmd + "\n\n")    # + "-o output_" + str(count) + "\n\n")
-        # TODO rm
-        #   "/path/to/solve-field -u app -L 0.3 -H 3.0 --backend-config " +
-        #   fits_source_directory + item + "-o output_" + str(count) + "\n\n"
-        # )
+        makeflow_file.write("\tmodule load python && " + cmd + "\n\n")
         count += 1
 
     makeflow_file.close()
@@ -78,11 +74,16 @@ def makeflow_gen(fits_filenames, fits_source_directory):
 
 def main():
     """
+    DEPRECATED. This script is called from astrogen. The parameters below
+    are specific to our environment, and will break on others.
+
     Call get_fits_filenames and makeflow_gen with appropriate arguments.
     """
+    path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
+    path_to_solve_field = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field'
     fits_source_directory = str(sys.argv[1])
     fits_filenames = get_fits_filenames(fits_source_directory)
-    makeflow_gen(fits_filenames, fits_source_directory)
+    makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
     
     return None
 

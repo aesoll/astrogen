@@ -40,17 +40,21 @@ class Astrogen(object):
     """
     def __init__(self):
 
-        # get iPlant params from config file, ask for user and password
+        # get params from config file
         config_path = \
             os.path.join(__resources_dir__, 'astrogen.cfg')
         with open(config_path) as f:
             cfg = Config(f)
             self.iplant_params = dict(cfg.iplant_login_details)
             self.max_batch_size = cfg.batch_details.max_batch_size
+            self.path_to_solve_field = cfg.solve_field_details.path_to_solve_field
+            self.path_to_netpbm = cfg.solve_field_details.path_to_netpbm
+
+        # uname and pword are given at command line
         self.user = raw_input("Enter iPlant username: ")
         self.password = raw_input("Enter iPlant password: ")
 
-        # set up temporary local file directory
+        # set up temporary local file directory for batches
         tempfile.tempdir = os.path.join(__pkg_root__, 'resources', 'fits_files')
 
         # set up logging
@@ -96,7 +100,11 @@ class Astrogen(object):
         Assumes a working solve-field on your path.
         """
         abs_batch_path = os.path.abspath(__batch_dir__)
-        makeflow_gen.makeflow_gen(os.listdir(__batch_dir__), abs_batch_path)
+        makeflow_gen.makeflow_gen(
+            os.listdir(abs_batch_path),
+            self.path_to_solve_field,
+            self.path_to_netpbm
+        )
 
     def _get_cleaned_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""

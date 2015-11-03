@@ -16,12 +16,16 @@ class TestAstrogen(unittest.TestCase):
     def setUp(self):
         astrogen.__batch_dir__ = os.path.join(__test_dir__, 'fits_files')
         self.ag = astrogen.Astrogen()
+
+        # set parameters normally gotten from astrogen.cfg
         self.ag.iplant_params = {
             'host': 'bitol.iplantcollaborative.org',
             'port': 1247,
             'zone': 'iplant',
             'iplant_path': '/iplant/home/david_sidi/astrometry/test_fits'
         }
+        self.ag.path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
+        self.ag.path_to_solve_field = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field'
 
     def test_get_cleaned_data_objects(self):
         cleaned_objs = self.ag._get_cleaned_data_objects()
