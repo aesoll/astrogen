@@ -36,9 +36,6 @@ def makeflow_gen(fits_filenames, fits_source_directory):
         os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
     makeflow_file = open(makeflow_path, "w")
 
-    with open('foo.txt', 'w') as f:
-       f.write("BLAHBLAHBLAH")
-
     count = 0
     abs_resources_path = os.path.abspath(astrogen.__resources_dir__)
     abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
@@ -47,10 +44,7 @@ def makeflow_gen(fits_filenames, fits_source_directory):
     makeflow_file.write("export PATH=/home/u12/ericlyons/bin/newnetpbm/bin:$PATH\n")  # This should only appear once at the top
     for item in fits_filenames:
         filepath = os.path.join(abs_batch_path, item)
-        cmd = \
-            'module load python && '\
-            '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
-              '-g' \
+        cmd = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field ' \
               '-u app ' \
               '-L 0.3 ' \
               '-p' \
