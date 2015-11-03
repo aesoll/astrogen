@@ -47,7 +47,7 @@ def makeflow_gen(fits_filenames, fits_source_directory):
         cmd = 'solve-field ' \
               '-u app ' \
               '-L 0.3 ' \
-              '-p' \
+              '-p ' \
               '--cpulimit 600 ' \
               '--wcs none ' \
               '--corr none ' \
