@@ -1,5 +1,6 @@
 from os import path
 import os
+import pdb
 from textwrap import dedent
 import config
 from irods.session import iRODSSession
