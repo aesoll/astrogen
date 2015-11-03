@@ -30,25 +30,27 @@ class ConfigFile(object):
         the template for the configuration file, the new configuration file
         output name, and the two parameters to replace. 
         """
-        self.fits_filename = os.path.join(astrogen.__output_dir__, "solve_field_output", "example.new")
-        self.fits_file = pyfits.open(self.fits_filename)
-        self.fits_file.info()
-        self.template_filename = os.path.join(astrogen.__resources_dir__, "config_template.txt")
-        #self.new_cfg_filename = str(self.fits_file[0].header[""]).replace(":", "")
-        self.new_cfg_filename = "example_output.cfg"
-        self.cfg_param_1 = "FocalLength"
-        self.cfg_param_2 = "PA"
+        self.stdout_ra = None
+        self.stdout_dec = None
+        self.stdout_pixelscale = None
 
 
-    def get_fits_headers(self):
+    def get_fits_headers(self, stdout_filename):
         """
         Sets instance variables for extracted header values.
         """
-        self.extracted_objctra = self.fits_file[0].header["objctra"]
-        self.extracted_objctdec = self.fits_file[0].header["objctdec"]
-        print()
-        print("objectra: " + self.extracted_objctra)
-        print("objectdec: " + self.extracted_objctdec)
+        with open(stdout_filename, "r") as f:
+            for line in f:
+                if "pixel scale" in line:
+                    line_list = line.split(" ")
+                    self.stdout_ra = line_list[4].split(",")[0][1:]
+                    self.stdout_dec = line_list[4].split(",")[1][:-1]
+                    self.stdout_pixelscale = line_list[7]
+
+        print(self.stdout_ra)
+        print(self.stdout_dec)
+        print(self.stdout_pixelscale)
+        
 
 
     def set_new_cfg_headers(self):
@@ -73,5 +75,5 @@ class ConfigFile(object):
 
 if __name__=="__main__":
     new = ConfigFile()
-    new.get_fits_headers()
-    new.set_new_cfg_headers()
+    new.get_fits_headers("resources/sample_stdout.txt")
+    #new.set_new_cfg_headers()
