@@ -30,25 +30,54 @@ class ConfigFile(object):
         the template for the configuration file, the new configuration file
         output name, and the two parameters to replace. 
         """
-        self.fits_filename = os.path.join(astrogen.__output_dir__, "solve_field_output", "example.new")
-        self.fits_file = pyfits.open(self.fits_filename)
-        self.fits_file.info()
-        self.template_filename = os.path.join(astrogen.__resources_dir__, "config_template.txt")
-        #self.new_cfg_filename = str(self.fits_file[0].header[""]).replace(":", "")
-        self.new_cfg_filename = "example_output.cfg"
-        self.cfg_param_1 = "FocalLength"
-        self.cfg_param_2 = "PA"
+        self.stdout_ra = None
+        self.stdout_dec = None
+        self.stdout_pixelscale = None
+        self.focal_length = None
+        self.template_filename = "resources/config_template.txt"
 
 
-    def get_fits_headers(self):
+    def get_stdout_values(self, stdout_filename):
         """
-        Sets instance variables for extracted header values.
+        Sets instance variables for extracted stdout values
         """
-        self.extracted_objctra = self.fits_file[0].header["objctra"]
-        self.extracted_objctdec = self.fits_file[0].header["objctdec"]
-        print()
-        print("objectra: " + self.extracted_objctra)
-        print("objectdec: " + self.extracted_objctdec)
+        with open(stdout_filename, "r") as f:
+            for line in f:
+                if "pixel scale" in line:
+                    line_list = line.split(" ")
+                    self.stdout_pixelscale = line_list[7]
+                elif "(RA H:M:S, Dec D:M:S)" in line:
+                    line_list = line.split(" ")
+                    self.stdout_ra = line_list[7][1:-1].replace(":", " ")
+                    self.stdout_dec = line_list[8][:-3].replace(":", " ")
+                elif "Field rotation angle" in line:
+                    line_list = line.split(" ")
+                    self.field_rotation = line_list[5]
+
+        return None
+
+
+    def set_fits_headers(self, fits_filename):
+        """
+        Sets objctra and objctdec fits headers based on instance variables
+        """
+        fits_file = pyfits.open(fits_filename)
+        # Following lines should set headers even if they don't exist
+        # If not, will add some code later
+        fits_file[0].header["objctra"] = self.stdout_ra
+        fits_file[0].header["objctdec"] = self.stdout_dec
+
+        return None
+
+        
+    def determine_focal_length(self):
+        """
+        Set instance variable representing the value derived from the focal length equation
+        focal length = (206265*.03)/platescale (pixel scale...?)
+        """
+        self.focal_length = (206265 * 0.03) / float(self.stdout_pixelscale)
+
+        return None
 
 
     def set_new_cfg_headers(self):
@@ -56,22 +85,25 @@ class ConfigFile(object):
         Creates a new file based on self.new_cfg_filename and replaces necessary
         parameters.
         """
-        new_cfg_path = os.path.join(astrogen.__output_dir__, "configuration_gen_output", self.new_cfg_filename)
         template = open(self.template_filename, "r")
-        new_cfg = open(new_cfg_path, "w")
+        new_cfg = open("output/configuration_gen_output/example1.cfg", "w")
 
         for line in template:
-            if self.cfg_param_1 in line:
-                new_cfg.write(self.cfg_param_1 + "=" + self.extracted_objctra +"\n")
-            elif self.cfg_param_2 in line:
-                new_cfg.write(self.cfg_param_2 + "=" + self.extracted_objctdec +"\n")
+            if "FocalLength" in line:
+                new_cfg.write("FocalLength=" + str(self.focal_length) +"\n")
+            elif "PA" in line and "VarPA" not in line:
+                new_cfg.write("PA=" + str(self.field_rotation) +"\n")
             else:
                 new_cfg.write(line)
 
         template.close()
         new_cfg.close()
 
+        return None
+
 if __name__=="__main__":
     new = ConfigFile()
-    new.get_fits_headers()
+    new.get_stdout_values("resources/sample_stdout.txt")
+    new.set_fits_headers("output/solve_field_output/example.new")
+    new.determine_focal_length()
     new.set_new_cfg_headers()
