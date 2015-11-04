@@ -1,4 +1,5 @@
 import unittest
+import shutil
 import astrogen
 import os
 import config
@@ -107,6 +108,7 @@ class TestAstrogen(unittest.TestCase):
         config_path = path.join(path.curdir, 'test_config.cfg')
         try:
             os.remove(config_path)
+            os.remove(os.path.join(astrogen.__resources_dir__, 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit'))
         except OSError:
             pass
 
@@ -114,12 +116,12 @@ class TestAstrogen(unittest.TestCase):
 class TestMakeflowGen(unittest.TestCase):
 
     def test_makeflow_gen(self):
-        # fix resources path to point to fits_files in tests
-        astrogen.__resources_dir__ = \
-            os.path.abspath(os.path.join(astrogen.__pkg_root__, os.pardir, 'tests'))
-
-        # /home/u28/dsidi/xdisk_space/midterm/astrometriconf/tests/
         fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
+
+        # temporarily copy the test file to the right spot
+        abs_file_path = os.path.join(astrogen.__pkg_root__, os.pardir, 'tests',
+                                     'fits_files', fits_filenames[0])
+        shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
 
         # TODO get these from config file in tests dir
         path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
@@ -167,6 +169,7 @@ class TestMakeflowGen(unittest.TestCase):
                        solve_field_path=path_to_solve_field,
                        solve_field_params=solve_field_fixed_params)
         )
+
         self.assertEqual(actual_output, correct_output)
 
 class TestConfig(unittest.TestCase):
