@@ -12,3 +12,4 @@ pytz==2015.7
 scandir==1.1
 six==1.10.0
 wsgiref==0.1.2
+zipfile==1.6
