@@ -12,6 +12,9 @@ __irods_server_port__ = "1247"
 __irods_server_zone__ = "iplant"
 __test_dir__ = os.path.dirname(__file__)
 
+# TODO
+# * test for run_parameter_extraction to be sure all and only desired files
+#   are used
 class TestAstrogen(unittest.TestCase):
     def setUp(self):
         astrogen.__batch_dir__ = os.path.join(__test_dir__, 'fits_files')

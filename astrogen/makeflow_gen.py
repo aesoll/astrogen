@@ -33,41 +33,42 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
     :param path_to_solve_field: The absolute path to solve field.
     """
     makeflow_path = \
-        os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
+        os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
     makeflow_file = open(makeflow_path, "w")
 
-    count = 0
     abs_resources_path = os.path.abspath(astrogen.__resources_dir__)
-    abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
-    backend_config_path = \
-        os.path.join(abs_resources_path, 'astrometry.cfg')
+    backend_config_path = os.path.join(abs_resources_path, 'astrometry.cfg')
+    input_path = os.path.join(abs_resources_path, 'fits_files')
 
     # This should only appear once at the top
     makeflow_file.write("export PATH={}:{}:$PATH\n".
                         format(path_to_solve_field, path_to_netpbm))
 
-    for item in fits_filenames:
-        filepath = os.path.join(abs_batch_path, item)
-        cmd = 'solve-field ' \
-              '-u app ' \
-              '-L 0.3 ' \
-              '-p ' \
-              '--cpulimit 600 ' \
-              '--wcs none ' \
-              '--corr none ' \
-              '--scamp-ref none ' \
-              '--pnm none ' \
-              '-H 3.0 ' \
-              '--backend-config {} ' \
-              '--overwrite ' \
-              '{}'.format(backend_config_path, filepath)
+    for filename in fits_filenames:
+        output_filename = os.path.splitext(filename) + '.out'
         makeflow_file.write(
-            "none" + str(count) + " : " + filepath +
-            " /gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field " + \
-            "\n")
-        makeflow_file.write("\tmodule load python && " + cmd + "\n\n")
-        count += 1
-
+            '{output_filename}: {path_to_input_fits} solve-field\n'
+            '\tmodule load python && '
+            'solve-field {path_to_input_fits} '
+                '-g '
+                '-u app '
+                '-L 0.3 '
+                '-p '
+                '--cpulimit 600 '
+                '--wcs none '
+                '--corr none '
+                '--scamp-ref none '
+                '--pnm none '
+                '-H 3.0 '
+                '--backend-config {path_to_config} '
+                '--overwrite {path_to_input_fits} '
+            '> {output_filename}\n\n'.
+            format(
+                output_filename=output_filename,
+                path_to_input_fits=input_path,
+                path_to_config=backend_config_path
+            )
+        )
     makeflow_file.close()
     return None
 

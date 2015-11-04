@@ -34,8 +34,21 @@ class ConfigFile(object):
         self.stdout_dec = None
         self.stdout_pixelscale = None
         self.focal_length = None
-        self.template_filename = "resources/config_template.txt"
+        self.field_rotation = None
+        self.template_filename = os.path.join(__resources_dir__,
+                                              'config_template.txt')
 
+    def process(self, fits_filename, stdout_filename):
+        """
+
+        :return:
+        """
+        self.get_stdout_values(stdout_filename)
+        self.set_fits_headers(fits_filename)
+        self.determine_focal_length()
+
+        config_name = os.path.splitext(fits_filename) + ".cfg"
+        self.set_new_cfg_headers(config_name)
 
     def get_stdout_values(self, stdout_filename):
         """
@@ -56,12 +69,12 @@ class ConfigFile(object):
 
         return None
 
-
     def set_fits_headers(self, fits_filename):
         """
         Sets objctra and objctdec fits headers based on instance variables
         """
         fits_file = pyfits.open(fits_filename)
+        # TODO unit test for this
         # Following lines should set headers even if they don't exist
         # If not, will add some code later
         fits_file[0].header["objctra"] = self.stdout_ra
@@ -80,13 +93,15 @@ class ConfigFile(object):
         return None
 
 
-    def set_new_cfg_headers(self):
+    def set_new_cfg_headers(self, config_output_filename):
         """
         Creates a new file based on self.new_cfg_filename and replaces necessary
         parameters.
+
+        :param config_output_filename:
         """
         template = open(self.template_filename, "r")
-        new_cfg = open("output/configuration_gen_output/example1.cfg", "w")
+        new_cfg = open(config_output_filename, "w")
 
         for line in template:
             if "FocalLength" in line:
@@ -106,4 +121,4 @@ if __name__=="__main__":
     new.get_stdout_values("resources/sample_stdout.txt")
     new.set_fits_headers("output/solve_field_output/example.new")
     new.determine_focal_length()
-    new.set_new_cfg_headers()
+    new.set_new_cfg_headers('output/example.cfg')
