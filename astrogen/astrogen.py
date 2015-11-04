@@ -13,6 +13,7 @@ Preprocess image files in FITS format to be input to Astrometrica.
 """
 from glob import glob
 import os
+import pdb
 import re
 import subprocess
 import tempfile
@@ -28,9 +29,9 @@ from configuration_gen import ConfigFile
 import makeflow_gen
 
 __pkg_root__ = os.path.dirname(__file__)
-__resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
+__resources_dir__ = os.path.abspath(os.path.join(__pkg_root__, os.pardir, 'resources'))
+__output_dir__ = os.path.abspath(os.path.join(__pkg_root__, os.pardir, 'output'))
 __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
-__output_dir__ = os.path.join(__pkg_root__, os.pardir, 'output')
 
 
 class Astrogen(object):
@@ -102,9 +103,8 @@ class Astrogen(object):
         Assumes only FITS files in the directory.
         Assumes a working solve-field on your path.
         """
-        abs_batch_path = os.path.abspath(__batch_dir__)
         makeflow_gen.makeflow_gen(
-            os.listdir(abs_batch_path),
+            os.listdir(__batch_dir__),
             self.path_to_solve_field,
             self.path_to_netpbm
         )
@@ -124,7 +124,7 @@ class Astrogen(object):
 
         for output_filename in glob(all_stdout_files):
             fits_basename = os.path.basename(output_filename)
-            fits_filename = os.path.splitext(fits_basename) + '.fit'
+            fits_filename = os.path.splitext(fits_basename)[0] + '.fit'
             ConfigFile().process(fits_filename, output_filename)
 
     def _run_makeflow(self, makeflow_script_name):
@@ -135,6 +135,8 @@ class Astrogen(object):
 
         :param makeflow_script_name: The name of the makeflow script to run.
         """
+        path_to_solve_field_outputs = \
+            os.path.join(__resources_dir__, 'fits_files')
         echo_out = subprocess.check_output('echo $SHELL', shell=True)
         shell = os.path.basename(echo_out.strip())
 
@@ -142,10 +144,13 @@ class Astrogen(object):
         if shell.startswith('ksh'):
             shell = 'ksh'
 
-        # source the script (with `.`) to get `module load` calls to work
+        # change to directory with fits files in it (we move them later),
+        # then source the script (with `.`) to get `module load` calls to work
         module_init = '/usr/share/Modules/init/', shell
-        cmd = 'makeflow --wrapper \'. {shell_module}\' {makeflow_script_name}'.\
-            format(shell_module=module_init, makeflow_script_name=makeflow_script_name)
+        cmd = 'cd {outputs_dir} && makeflow --wrapper \'. {shell_module}\' {makeflow_script_name}'.\
+            format(outputs_dir=path_to_solve_field_outputs,
+                   shell_module=module_init,
+                   makeflow_script_name=makeflow_script_name)
 
         subprocess.check_output(cmd, shell=True)
 

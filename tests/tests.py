@@ -1,16 +1,17 @@
-from os import path
-import os
-import pdb
-from textwrap import dedent
-import config
-from irods.session import iRODSSession
 import unittest
 import astrogen
+import os
+import config
+import makeflow_gen
+import pdb
+from os import path
+from textwrap import dedent
+from irods.session import iRODSSession
 
 __irods_server_host__ = 'bitol.iplantcollaborative.org'
 __irods_server_port__ = "1247"
 __irods_server_zone__ = "iplant"
-__test_dir__ = os.path.dirname(__file__)
+__test_dir__ = os.path.join(astrogen.__pkg_root__, os.pardir, 'tests')
 
 # TODO
 # * test for run_parameter_extraction to be sure all and only desired files
@@ -47,7 +48,8 @@ class TestAstrogen(unittest.TestCase):
         self.assertListEqual(names, correct_names)
 
     def test_solve_batch_astronomy(self):
-        """Assumes known files in tests/fits_files"""
+        # TODO this side-effects a lot, test for a run with a single FITS
+        # file in a test fits_files dir
         self.ag._solve_batch_astrometry()
 
     def test_batching(self):
@@ -82,6 +84,62 @@ class TestAstrogen(unittest.TestCase):
             os.remove(config_path)
         except OSError:
             pass
+
+
+class TestMakeflowGen(unittest.TestCase):
+
+    def test_makeflow_gen(self):
+        # /home/u28/dsidi/xdisk_space/midterm/astrometriconf/tests/
+        fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
+
+        # TODO get these from config file in tests dir
+        path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
+        path_to_solve_field = '/gsfs1/xdisk/dsidi/midterm/astrometry.net-0.50/blind/solve-field'
+
+        makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
+
+        ##
+        # get output of makeflow_gen
+        #
+        with open(os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')) as f:
+            actual_output = f.read()
+
+        ##
+        # get correct output
+        #
+        correct_output_filename = 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.out'
+        correct_fits_file_abs_path = \
+            os.path.join(astrogen.__resources_dir__, 'fits_files',
+                         'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit')
+        correct_cfg_path = os.path.join(astrogen.__resources_dir__, 'astrometry.cfg')
+
+        solve_field_fixed_params =\
+            '-g ' \
+            '-u app ' \
+            '-L 0.3 ' \
+            '-p ' \
+            '--cpulimit 600 ' \
+            '--wcs none ' \
+            '--corr none ' \
+            '--scamp-ref none ' \
+            '--pnm none ' \
+            '-H 3.0'
+
+        correct_output = dedent("""\
+            export PATH={solve_field_loc}:{netpbm_loc}:$PATH
+            {output_filename} : {fits_file_loc} solve-field
+            \tmodule load python && solve-field {solve_field_params} --backend-config {config_loc} --overwrite {fits_file_loc} > {output_filename}
+
+            """.format(netpbm_loc=path_to_netpbm,
+                       solve_field_loc=path_to_solve_field,
+                       output_filename=correct_output_filename,
+                       config_loc=correct_cfg_path,
+                       fits_file_loc=correct_fits_file_abs_path,
+                       solve_field_params=solve_field_fixed_params)
+        )
+        pdb.set_trace()
+
+        self.assertEqual(actual_output, correct_output)
 
 
 class TestConfig(unittest.TestCase):

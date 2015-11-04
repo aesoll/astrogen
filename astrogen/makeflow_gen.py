@@ -12,6 +12,7 @@
 Generates a makeflow file for processing FITS files with the astrometry software 
 solve_field.
 """
+import pdb
 import sys
 import os
 import astrogen
@@ -29,6 +30,12 @@ def get_fits_filenames(fits_source_directory):
 def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
     """Write out contents of fits_filenames to properly formatted makeflow file.
 
+    Note that the call to makeflow that is passed this script is expected to be
+    made from within the directory where the fits files are located.
+    For this reason, the fits_filenames are not paths.
+
+    :param list[str] fits_filenames: The names (not paths) of fits filenames to
+        use.
     :param path_to_netpbm: The absolute path to netpbm.
     :param path_to_solve_field: The absolute path to solve field.
     """
@@ -45,11 +52,12 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
                         format(path_to_solve_field, path_to_netpbm))
 
     for filename in fits_filenames:
-        output_filename = os.path.splitext(filename) + '.out'
+        output_filename = os.path.splitext(os.path.basename(filename))[0] + '.out'
+        fits_path = os.path.join(input_path, filename)
         makeflow_file.write(
-            '{output_filename}: {path_to_input_fits} solve-field\n'
+            '{output_filename} : {path_to_input_fits} solve-field\n'
             '\tmodule load python && '
-            'solve-field {path_to_input_fits} '
+            'solve-field '
                 '-g '
                 '-u app '
                 '-L 0.3 '
@@ -65,7 +73,7 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
             '> {output_filename}\n\n'.
             format(
                 output_filename=output_filename,
-                path_to_input_fits=input_path,
+                path_to_input_fits=fits_path,
                 path_to_config=backend_config_path
             )
         )
