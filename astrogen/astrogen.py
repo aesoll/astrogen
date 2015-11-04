@@ -27,6 +27,7 @@ from irods.session import iRODSSession
 import shutil
 from configuration_gen import ConfigFile
 import makeflow_gen
+import zipfile
 
 __pkg_root__ = os.path.dirname(__file__)
 __resources_dir__ = os.path.abspath(os.path.join(__pkg_root__, os.pardir, 'resources'))
