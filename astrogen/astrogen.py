@@ -93,7 +93,7 @@ class Astrogen(object):
                 current_batch_size = 0
 
     # PRIVATE #################################################################
-    def _file_namer(data_object):
+    def _unzipper(data_object):
         with ZipFile(data_object, 'w') as myzip:
             testZip = myzip.testzip()
             if testZip == None: # if testZip is None then there are no bad files
