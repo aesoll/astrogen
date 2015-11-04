@@ -114,6 +114,10 @@ class TestAstrogen(unittest.TestCase):
 class TestMakeflowGen(unittest.TestCase):
 
     def test_makeflow_gen(self):
+        # fix resources path to point to fits_files in tests
+        astrogen.__resources_dir__ = \
+            os.path.abspath(os.path.join(astrogen.__pkg_root__, os.pardir, 'tests'))
+
         # /home/u28/dsidi/xdisk_space/midterm/astrometriconf/tests/
         fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
 
@@ -151,15 +155,16 @@ class TestMakeflowGen(unittest.TestCase):
             '-H 3.0'
 
         correct_output = dedent("""\
-            export PATH={solve_field_loc}:{netpbm_loc}:$PATH
-            {output_filename} : {fits_file_loc} solve-field
-            \tmodule load python && solve-field {solve_field_params} --backend-config {config_loc} --overwrite {fits_file_loc} > {output_filename}
+            export PATH={netpbm_loc}:$PATH
+            {output_filename} : {fits_file_loc} {solve_field_path}
+            \tmodule load python && {solve_field_path} {solve_field_params} --backend-config {config_loc} --overwrite {fits_file_loc} > {output_filename}
 
             """.format(netpbm_loc=path_to_netpbm,
                        solve_field_loc=path_to_solve_field,
                        output_filename=correct_output_filename,
                        config_loc=correct_cfg_path,
                        fits_file_loc=correct_fits_file_abs_path,
+                       solve_field_path=path_to_solve_field,
                        solve_field_params=solve_field_fixed_params)
         )
         self.assertEqual(actual_output, correct_output)

@@ -48,16 +48,15 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
     input_path = os.path.join(abs_resources_path, 'fits_files')
 
     # This should only appear once at the top
-    makeflow_file.write("export PATH={}:{}:$PATH\n".
-                        format(path_to_solve_field, path_to_netpbm))
+    makeflow_file.write("export PATH={}:$PATH\n".format(path_to_netpbm))
 
     for filename in fits_filenames:
         output_filename = os.path.splitext(os.path.basename(filename))[0] + '.out'
         fits_path = os.path.join(input_path, filename)
         makeflow_file.write(
-            '{output_filename} : {path_to_input_fits} solve-field\n'
+            '{output_filename} : {path_to_input_fits} {solve_field_path}\n'
             '\tmodule load python && '
-            'solve-field '
+            '{solve_field_path} '
                 '-g '
                 '-u app '
                 '-L 0.3 '
@@ -74,6 +73,7 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
             format(
                 output_filename=output_filename,
                 path_to_input_fits=fits_path,
+                solve_field_path=path_to_solve_field,
                 path_to_config=backend_config_path
             )
         )
