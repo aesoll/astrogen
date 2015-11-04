@@ -12,6 +12,7 @@
 Generates a makeflow file for processing FITS files with the astrometry software 
 solve_field.
 """
+import pdb
 import sys
 import os
 import astrogen
@@ -29,45 +30,53 @@ def get_fits_filenames(fits_source_directory):
 def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
     """Write out contents of fits_filenames to properly formatted makeflow file.
 
+    Note that the call to makeflow that is passed this script is expected to be
+    made from within the directory where the fits files are located.
+    For this reason, the fits_filenames are not paths.
+
+    :param list[str] fits_filenames: The names (not paths) of fits filenames to
+        use.
     :param path_to_netpbm: The absolute path to netpbm.
     :param path_to_solve_field: The absolute path to solve field.
     """
     makeflow_path = \
-        os.path.join(astrogen.__pkg_root__, os.pardir, 'makeflows', 'output.mf')
+        os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
     makeflow_file = open(makeflow_path, "w")
 
-    count = 0
     abs_resources_path = os.path.abspath(astrogen.__resources_dir__)
-    abs_batch_path = os.path.abspath(astrogen.__batch_dir__)
-    backend_config_path = \
-        os.path.join(abs_resources_path, 'astrometry.cfg')
+    backend_config_path = os.path.join(abs_resources_path, 'astrometry.cfg')
+    input_path = os.path.join(abs_resources_path, 'fits_files')
 
     # This should only appear once at the top
     makeflow_file.write("export PATH={}:{}:$PATH\n".
                         format(path_to_solve_field, path_to_netpbm))
 
-    for item in fits_filenames:
-        filepath = os.path.join(abs_batch_path, item)
-        cmd = 'solve-field ' \
-              '-u app ' \
-              '-L 0.3 ' \
-              '-p ' \
-              '--cpulimit 600 ' \
-              '--wcs none ' \
-              '--corr none ' \
-              '--scamp-ref none ' \
-              '--pnm none ' \
-              '-H 3.0 ' \
-              '--backend-config {} ' \
-              '--overwrite ' \
-              '{}'.format(backend_config_path, filepath)
+    for filename in fits_filenames:
+        output_filename = os.path.splitext(os.path.basename(filename))[0] + '.out'
+        fits_path = os.path.join(input_path, filename)
         makeflow_file.write(
-            "none" + str(count) + " : " + filepath +
-            " /gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field " + \
-            "\n")
-        makeflow_file.write("\tmodule load python && " + cmd + "\n\n")
-        count += 1
-
+            '{output_filename} : {path_to_input_fits} solve-field\n'
+            '\tmodule load python && '
+            'solve-field '
+                '-g '
+                '-u app '
+                '-L 0.3 '
+                '-p '
+                '--cpulimit 600 '
+                '--wcs none '
+                '--corr none '
+                '--scamp-ref none '
+                '--pnm none '
+                '-H 3.0 '
+                '--backend-config {path_to_config} '
+                '--overwrite {path_to_input_fits} '
+            '> {output_filename}\n\n'.
+            format(
+                output_filename=output_filename,
+                path_to_input_fits=fits_path,
+                path_to_config=backend_config_path
+            )
+        )
     makeflow_file.close()
     return None
 
