@@ -146,12 +146,13 @@ class Astrogen(object):
 
         # change to directory with fits files in it (we move them later),
         # then source the script (with `.`) to get `module load` calls to work
-        module_init = '/usr/share/Modules/init/', shell
+        module_init = '/usr/share/Modules/init/' + shell
         cmd = 'cd {outputs_dir} && makeflow --wrapper \'. {shell_module}\' {makeflow_script_name}'.\
             format(outputs_dir=path_to_solve_field_outputs,
                    shell_module=module_init,
                    makeflow_script_name=makeflow_script_name)
 
+        pdb.set_trace()
         subprocess.check_output(cmd, shell=True)
 
     def _move_makefile_solutions(self):
@@ -197,8 +198,8 @@ class Astrogen(object):
         coll = sess.collections.get(iplant_params['iplant_path'])
         data_objects = coll.data_objects
         cleaned_data_objects = \
-            filter(lambda x: x.name.endswith('.fits') or
-                             x.name.endswith('.arch'),
+            filter(lambda x: x.name.lower().endswith('.fits') or
+                             x.name.lower().endswith('.arch'),
                    data_objects)
         return cleaned_data_objects
 
@@ -234,7 +235,7 @@ class Astrogen(object):
             with data_object.open('r') as irods_f:
                 hdus = fits.open(irods_f)
                 if Astrogen._passes_muster(hdus):
-                    hdus.writeto(tempfile.NamedTemporaryFile(delete=False))
+                    hdus.writeto(tempfile.NamedTemporaryFile(delete=False, dir=__batch_dir__))
         except IOError:
             logging.info('File rejected: {}.').format(data_object.name)
 
