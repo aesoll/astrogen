@@ -94,7 +94,14 @@ class Astrogen(object):
                 current_batch_size = 0
 
     # PRIVATE #################################################################
-
+    def _unzipper(data_object):
+        with ZipFile(data_object, 'w') as myzip:
+            testZip = myzip.testzip()
+            if testZip == None: # if testZip is None then there are no bad files
+                myzip.write(tempfile.NamedTemporaryFile())
+            else:
+                myzip.moveFileToDirectory("Unusable") #move to non working folder
+            ZipFile.close()
     def _solve_batch_astrometry(self):
         """
         Generate the makeflow script to run astrometry on a batch of local
