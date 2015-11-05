@@ -40,8 +40,11 @@ class ConfigFile(object):
 
     def process(self, fits_filename, stdout_filename):
         """
-
-        :return:
+        Sets instance variables for extracted stdout values, 
+        sets objctra and objctdec fits headers based on those values,
+        and determines the focal length based on the given equation
+        focal length = (206265*.03)/platescale.
+        Creates a new file.
         """
         self.get_stdout_values(stdout_filename)
         self.set_fits_headers(fits_filename)
