@@ -37,24 +37,25 @@ class TestAstrogen(unittest.TestCase):
     def test_get_cleaned_data_objects(self):
         cleaned_objs = self.ag._get_cleaned_data_objects()
         names = [obj.name for obj in cleaned_objs]
-        
-        correct_names{
-        Briol_1197Rhodesia_20140630_044345_TA_FITS.fit
-        Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit
-        Briol_1197Rhodesia_20140630_053258_TA_FITS.fit
-        Briol_1197Rhodesia_20140630_055229_TA_FITS.fit
-        Briol_1197Rhodesia_20140630_055229_flatfield_TA_FITS.FIT
-        Briol_1197Rhodesia_20140704_045604_TA_FITS.fit
-        Briol_1197Rhodesia_20140704_052116_TA_FITS.fit
-        Briol_1197Rhodesia_20140704_053610_TA_FITS.fit
-        Briol_1197Rhodesia_20140706_041323_TA_FITS.fit
-        Briol_1197Rhodesia_20140706_042914_TA_FITS.fit
-        Briol_1197Rhodesia_20140706_044914_TA_FITS.fit
-        Briol_1241Dysona_20150214_010819_TA_FITS.fit
-        Briol_1241Dysona_20150214_020103_TA_FITS.fit
-        Briol_1241Dysona_20150214_022401_TA_FITS.fit
-        }
-        self.assertListEqual(names, correct_names)
+        pass
+        # TODO update filenames here, and uncomment assertion
+        # correct_names = [
+        # Briol_1197Rhodesia_20140630_044345_TA_FITS.fit
+        # Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit
+        # Briol_1197Rhodesia_20140630_053258_TA_FITS.fit
+        # Briol_1197Rhodesia_20140630_055229_TA_FITS.fit
+        # Briol_1197Rhodesia_20140630_055229_flatfield_TA_FITS.FIT
+        # Briol_1197Rhodesia_20140704_045604_TA_FITS.fit
+        # Briol_1197Rhodesia_20140704_052116_TA_FITS.fit
+        # Briol_1197Rhodesia_20140704_053610_TA_FITS.fit
+        # Briol_1197Rhodesia_20140706_041323_TA_FITS.fit
+        # Briol_1197Rhodesia_20140706_042914_TA_FITS.fit
+        # Briol_1197Rhodesia_20140706_044914_TA_FITS.fit
+        # Briol_1241Dysona_20150214_010819_TA_FITS.fit
+        # Briol_1241Dysona_20150214_020103_TA_FITS.fit
+        # Briol_1241Dysona_20150214_022401_TA_FITS.fit
+        # ]
+        # self.assertListEqual(names, correct_names)
 
     def test_solve_batch_astronomy(self):
         # TODO this side-effects a lot, test for a run with a single FITS
@@ -179,13 +180,11 @@ class TestMakeflowGen(unittest.TestCase):
         makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
 
     def test_makeflow_gen(self):
-        # fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
-        fits_filenames = os.listdir(os.path.join(__test_dir__, 'fits_files'))
+        fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
 
-        # temporarily copy the test files to resources/fits_files
-        for filename in fits_filenames:
-            abs_file_path = os.path.join(__test_dir__, 'fits_files', filename)
-            shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
+        # temporarily copy the test file to resources/fits_files
+        abs_file_path = os.path.join(__test_dir__, 'fits_files', fits_filenames[0])
+        shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
 
         # TODO get these from config file in tests dir
         path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
@@ -194,9 +193,7 @@ class TestMakeflowGen(unittest.TestCase):
         makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
 
         ##
-        
-        export PATH=/home/u12/ericlyons/bin/newnetpbm/bin:$PATH
-        correct_output_of_makeflow_gen = 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.out : /home/dsidi/fa15/Cyberinfrastructure/astrometrica-gen/resources/fits_files/Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit /gsfs1/xdisk/dsidi/midterm/astrometry.net-0.50/blind/solve-field'
+        # get actual output of makeflow_gen
         #
         makeflow_path = os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
         with open(makeflow_path) as f:
