@@ -99,7 +99,11 @@ class Astrogen(object):
         with ZipFile(data_object, 'w') as myzip:
             testZip = myzip.testzip()
             if testZip == None: # if testZip is None then there are no bad files
+                
+                path_to_unzipper_outputs = /
+                os.path.join(__resources_dir__, 'fits_files')
                 myzip.write(tempfile.NamedTemporaryFile())
+                
             else:
                 myzip.moveFileToDirectory("Unusable") #move to non working folder
             ZipFile.close()
