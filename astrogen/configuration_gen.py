@@ -50,7 +50,7 @@ class ConfigFile(object):
         self.set_fits_headers(fits_filename)
         self.determine_focal_length()
 
-        config_name = os.path.splitext(fits_filename) + ".cfg"
+        config_name = os.path.splitext(fits_filename)[0] + ".cfg"
         self.set_new_cfg_headers(config_name)
 
     def get_stdout_values(self, stdout_filename):
