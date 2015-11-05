@@ -205,7 +205,7 @@ class Astrogen(object):
                              '-l cput=01:00:00" ' \
                          '3'.format(project_name=makeflow_project_name)
         subprocess.check_output(pbs_submit_cmd, shell=True)
-        subprocess.check_output('sleep 5', shell=True)  # TODO is this long enough?
+        # subprocess.check_output('sleep 5', shell=True)  # not needed
         subprocess.check_output(makeflow_cmd, shell=True)
 
     def _move_makefile_solutions(self):
