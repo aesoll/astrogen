@@ -170,7 +170,7 @@ class Astrogen(object):
             to run.
         """
         # TODO factor the sections into methods
-        makeflow_project_name = 'SONORANSCRIPTSYALL'
+        makeflow_project_name = 'SONORAN'
         path_to_solve_field_outputs = \
             os.path.join(__resources_dir__, 'fits_files')
 
