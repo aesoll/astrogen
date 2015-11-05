@@ -108,7 +108,8 @@ class TestAstrogen(unittest.TestCase):
         config_path = path.join(path.curdir, 'test_config.cfg')
         try:
             os.remove(config_path)
-            os.remove(os.path.join(astrogen.__resources_dir__, 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit'))
+            os.remove(os.path.join(astrogen.__resources_dir__, 'fits_files',
+                                   'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit'))
         except OSError:
             pass
 

@@ -95,18 +95,19 @@ class Astrogen(object):
                 current_batch_size = 0
 
     # PRIVATE #################################################################
+
     def _unzipper(data_object):
-        with ZipFile(data_object, 'w') as myzip:
+        with zipfile.ZipFile(data_object, 'w') as myzip:
             testZip = myzip.testzip()
-            if testZip == None: # if testZip is None then there are no bad files
-                
-                path_to_unzipper_outputs = /
-                os.path.join(__resources_dir__, 'fits_files')
+            if testZip == None:  # if testZip is None then there are no bad files
+
+                path_to_unzipper_outputs = \
+                    os.path.join(__resources_dir__, 'fits_files')
                 myzip.write(tempfile.NamedTemporaryFile())
-                
+
             else:
                 myzip.moveFileToDirectory("Unusable") #move to non working folder
-            ZipFile.close()
+
     def _solve_batch_astrometry(self):
         """
         Generate the makeflow script to run astrometry on a batch of local
@@ -147,6 +148,7 @@ class Astrogen(object):
 
         :param makeflow_script_name: The name of the makeflow script to run.
         """
+        makeflow_project_name = 'SONORAN_SCRIPTS_YALL'
         path_to_solve_field_outputs = \
             os.path.join(__resources_dir__, 'fits_files')
         echo_out = subprocess.check_output('echo $SHELL', shell=True)
@@ -159,13 +161,32 @@ class Astrogen(object):
         # change to directory with fits files in it (we move them later),
         # then source the script (with `.`) to get `module load` calls to work
         module_init = '/usr/share/Modules/init/' + shell
-        cmd = 'cd {outputs_dir} && makeflow --wrapper \'. {shell_module}\' {makeflow_script_name}'.\
+        makeflow_cmd = 'cd {outputs_dir} && ' \
+              'makeflow --wrapper \'. {shell_module}\' ' \
+                  '-T wq ' \
+                  '-a ' \
+                  '-N {project_name} ' \
+              '{makeflow_script_name}'.\
             format(outputs_dir=path_to_solve_field_outputs,
                    shell_module=module_init,
+                   project_name=makeflow_project_name,
                    makeflow_script_name=makeflow_script_name)
 
-        pdb.set_trace()
-        subprocess.check_output(cmd, shell=True)
+        pbs_submit_cmd = 'pbs_submit_workers ' \
+                         '-d all ' \
+                         '-N {project_name} ' \
+                         '-p "-N {project_name} ' \
+                             '-W group_list=nirav ' \
+                             '-q standard ' \
+                             '-l jobtype=serial ' \
+                             '-l select=1:ncpus=3:mem=4gb ' \
+                             '-l place=pack:shared ' \
+                             '-l walltime=01:00:00 ' \
+                             '-l cput=01:00:00" ' \
+                         '3'.format(project_name=makeflow_project_name)
+        subprocess.check_output(pbs_submit_cmd, shell=True)
+        subprocess.check_output('sleep 5', shell=True)  # TODO is this long enough?
+        subprocess.check_output(makeflow_cmd, shell=True)
 
     def _move_makefile_solutions(self):
         """Move makeflow solution files to their directory"""
