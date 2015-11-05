@@ -137,12 +137,14 @@ class Astrogen(object):
         Assumes only FITS files in the directory.
         Assumes a working solve-field on your path.
         """
+        fits_filenames = os.listdir(__batch_dir__)
         makeflow_gen.makeflow_gen(
-            os.listdir(__batch_dir__),
+            fits_filenames,
             self.path_to_solve_field,
             self.path_to_netpbm
         )
-        self._run_makeflow('output.mf')
+        makeflow_path = os.path.join(__output_dir__, 'makeflows', 'output.mf')
+        self._run_makeflow(makeflow_path)
         self._run_parameter_extraction()
         self._move_makefile_solutions()
 
@@ -157,9 +159,11 @@ class Astrogen(object):
         all_stdout_files = os.path.join(path_to_solve_field_outputs, '*.out')
 
         for output_filename in glob(all_stdout_files):
+            dir_name = os.path.dirname(output_filename)
             fits_basename = os.path.basename(output_filename)
             fits_filename = os.path.splitext(fits_basename)[0] + '.fit'
-            ConfigFile().process(fits_filename, output_filename)
+            fits_path = os.path.join(dir_name, fits_filename)
+            ConfigFile().process(fits_path, output_filename)
 
     def _run_makeflow(self, makeflow_script_name):
         """Runs a makeflow.
