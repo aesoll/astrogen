@@ -84,6 +84,7 @@ class Astrogen(object):
         for data_object in cleaned_data_objects:
             if current_batch_size < self.max_batch_size:
                 self._add_to_local_batch(data_object)
+
                 current_batch_size = self._get_dir_size('.')
             else:
                 # call astronomy.net stuff on this batch
@@ -340,7 +341,7 @@ class Astrogen(object):
         """
         # TODO decorate for IO error catching
         try:
-            # write to temp. local file, to be taken in by astronomy.net
+            # write to temp. local file
             with data_object.open('r') as irods_f:
                 hdus = fits.open(irods_f)
                 if Astrogen._passes_muster(hdus):
