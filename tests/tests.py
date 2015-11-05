@@ -136,7 +136,9 @@ class TestMakeflowGen(unittest.TestCase):
         makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
 
         ##
-        # get output of makeflow_gen
+        
+        export PATH=/home/u12/ericlyons/bin/newnetpbm/bin:$PATH
+        correct_output_of_makeflow_gen = 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.out : /home/dsidi/fa15/Cyberinfrastructure/astrometrica-gen/resources/fits_files/Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit /gsfs1/xdisk/dsidi/midterm/astrometry.net-0.50/blind/solve-field'
         #
         makeflow_path = os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
         with open(makeflow_path) as f:
