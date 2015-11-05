@@ -159,11 +159,13 @@ class Astrogen(object):
         all_stdout_files = os.path.join(path_to_solve_field_outputs, '*.out')
 
         for output_filename in glob(all_stdout_files):
-            dir_name = os.path.dirname(output_filename)
-            fits_basename = os.path.basename(output_filename)
-            fits_filename = os.path.splitext(fits_basename)[0] + '.fit'
-            fits_path = os.path.join(dir_name, fits_filename)
-            ConfigFile().process(fits_path, output_filename)
+            is_not_empty = os.path.getsize(output_filename)
+            if is_not_empty:
+                dir_name = os.path.dirname(output_filename)
+                fits_basename = os.path.basename(output_filename)
+                fits_filename = os.path.splitext(fits_basename)[0] + '.fit'
+                fits_path = os.path.join(dir_name, fits_filename)
+                ConfigFile().process(fits_path, output_filename)
 
     def _run_makeflow(self, makeflow_script_name):
         """Runs a makeflow.
