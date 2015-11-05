@@ -84,7 +84,7 @@ class Astrogen(object):
         for data_object in cleaned_data_objects:
             if current_batch_size < self.max_batch_size:
                 self._add_to_local_batch(data_object)
-                current_batch_size = os.path.getsize(__batch_dir__) / 1024.**2
+                current_batch_size = os.path.getsize(__batch_dir__) / 1024. ** 2
             else:
                 # call astronomy.net stuff on this batch
                 self._solve_batch_astrometry()
@@ -340,11 +340,12 @@ class Astrogen(object):
         """
         # TODO decorate for IO error catching
         try:
+            name = data_object.name
             # write to temp. local file
             with data_object.open('r') as irods_f:
                 hdus = fits.open(irods_f)
                 if Astrogen._passes_muster(hdus):
-                    hdus.writeto(tempfile.NamedTemporaryFile(delete=False, dir=__batch_dir__))
+                    hdus.writeto(os.path.join(__batch_dir__, name))
         except IOError:
-            logging.info('File rejected: {}.').format(data_object.name)
+            logging.info('File rejected: {}.'.format(data_object.name))
 
