@@ -44,7 +44,7 @@ class TestAstrogen(unittest.TestCase):
         # Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit
         # Briol_1197Rhodesia_20140630_053258_TA_FITS.fit
         # Briol_1197Rhodesia_20140630_055229_TA_FITS.fit
-        # Briol_1197Rhodesia_20140630_055229_flatfield_TA_FITS.FIT
+        # Briol_1197Rhodesia_20140630_055229_flatfield_TA_FITS.fit
         # Briol_1197Rhodesia_20140704_045604_TA_FITS.fit
         # Briol_1197Rhodesia_20140704_052116_TA_FITS.fit
         # Briol_1197Rhodesia_20140704_053610_TA_FITS.fit
