@@ -78,7 +78,7 @@ class Astrogen(object):
         Note: Nothing but .fits and .arch files are allowed.
         """
         # get data objects from iPlant
-        cleaned_data_objects = self._get_cleaned_data_objects()
+        cleaned_data_objects = self._get_data_objects()
 
         current_batch_size = 0
         for data_object in cleaned_data_objects:
@@ -262,7 +262,7 @@ class Astrogen(object):
         for filename in other_solution_files:
             shutil.move(filename, other_soln_files_dst)
 
-    def _get_cleaned_data_objects(self):
+    def _get_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
         iplant_params = self.iplant_params
 
@@ -278,11 +278,11 @@ class Astrogen(object):
         )
         coll = sess.collections.get(iplant_params['iplant_filepath'])
         data_objects = coll.data_objects
-        cleaned_data_objects = \
-            filter(lambda x: x.name.lower().endswith('.fits') or
-                             x.name.lower().endswith('.arch'),
-                   data_objects)
-        return cleaned_data_objects
+        # cleaned_data_objects = \
+        #     filter(lambda x: x.name.lower().endswith('.fits') or
+        #                      x.name.lower().endswith('.arch'),
+        #            data_objects)
+        return data_objects
 
     @staticmethod
     def _clear_generated_files():

@@ -35,7 +35,7 @@ class TestAstrogen(unittest.TestCase):
         self.ag = ag
 
     def test_get_cleaned_data_objects(self):
-        cleaned_objs = self.ag._get_cleaned_data_objects()
+        cleaned_objs = self.ag._get_data_objects()
         names = [obj.name for obj in cleaned_objs]
         pass
         # TODO update filenames here, and uncomment assertion
@@ -64,7 +64,7 @@ class TestAstrogen(unittest.TestCase):
 
     def test_batching(self):
         full_dataset_ag = astrogen.Astrogen()
-        cleaned_objects = full_dataset_ag._get_cleaned_data_objects()
+        cleaned_objects = full_dataset_ag._get_data_objects()
 
         current_batch_size = 0
         for data_object in cleaned_objects:
