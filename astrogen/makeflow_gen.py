@@ -77,6 +77,7 @@ def makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm):
                 path_to_config=backend_config_path
             )
         )
+
     makeflow_file.close()
     return None
 

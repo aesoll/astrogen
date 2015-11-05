@@ -166,11 +166,17 @@ class Astrogen(object):
         Side-effects by generating several files for each fits file in the
         batch directory (resources/fits_files).
 
-        :param makeflow_script_name: The name of the makeflow script to run.
+        :param makeflow_script_name: The absolute path of the makeflow script
+            to run.
         """
-        makeflow_project_name = 'SONORAN_SCRIPTS_YALL'
+        # TODO factor the sections into methods
+        makeflow_project_name = 'SONORANSCRIPTSYALL'
         path_to_solve_field_outputs = \
             os.path.join(__resources_dir__, 'fits_files')
+
+        ##
+        # Get the shell, stand on head so that `module load` works
+        #
         echo_out = subprocess.check_output('echo $SHELL', shell=True)
         shell = os.path.basename(echo_out.strip())
 
@@ -178,9 +184,12 @@ class Astrogen(object):
         if shell.startswith('ksh'):
             shell = 'ksh'
 
-        # change to directory with fits files in it (we move them later),
-        # then source the script (with `.`) to get `module load` calls to work
+        # called for this particular shell
         module_init = '/usr/share/Modules/init/' + shell
+
+        ##
+        # build makeflow, pbs_submit_workers commands
+        #
         makeflow_cmd = 'cd {outputs_dir} && ' \
               'makeflow --wrapper \'. {shell_module}\' ' \
                   '-T wq ' \
@@ -204,6 +213,10 @@ class Astrogen(object):
                              '-l walltime=01:00:00 ' \
                              '-l cput=01:00:00" ' \
                          '3'.format(project_name=makeflow_project_name)
+
+        ##
+        # call commands
+        #
         subprocess.check_output(pbs_submit_cmd, shell=True)
         # subprocess.check_output('sleep 5', shell=True)  # not needed
         subprocess.check_output(makeflow_cmd, shell=True)

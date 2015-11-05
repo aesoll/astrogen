@@ -133,7 +133,8 @@ class TestMakeflowGen(unittest.TestCase):
         ##
         # get output of makeflow_gen
         #
-        with open(os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')) as f:
+        makeflow_path = os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
+        with open(makeflow_path) as f:
             actual_output = f.read()
 
         ##
