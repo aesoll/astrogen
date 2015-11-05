@@ -1,3 +1,4 @@
+from glob import glob
 import unittest
 import shutil
 import astrogen
@@ -56,7 +57,27 @@ class TestAstrogen(unittest.TestCase):
         self.ag._solve_batch_astrometry()
 
     def test_batching(self):
-        assert True
+        full_dataset_ag = astrogen.Astrogen()
+        cleaned_objects = full_dataset_ag._get_cleaned_data_objects()
+
+        current_batch_size = 0
+        for data_object in cleaned_objects:
+            if current_batch_size < self.max_batch_size:
+                self._add_to_local_batch(data_object)
+                current_batch_size = self._get_dir_size('.')
+            else:
+                # call astronomy.net stuff on this batch
+                self._solve_batch_astrometry()
+
+                # clear this batch from directory
+                all_batched_fits_files = glob(os.path.join(astrogen.__batch_dir__, '*.fits'))
+                os.remove(all_batched_fits_files)
+                current_batch_size = 0
+
+                break  # in test only, stop after first batch
+
+        dir_size = os.path.getsize(astrogen.__batch_dir__) / 1024.
+        self.assertEqual(dir_size, 100)
 
     def test_logging(self):
         try:
@@ -104,25 +125,62 @@ class TestAstrogen(unittest.TestCase):
         self.assertEqual(actual_RA_DEC, correct_RA_DEC)
         self.assertEqual(actual_stdout_tail, correct_stdout_tail)
 
+    def test_clear_generated_files(self):
+        makeflows_dir = os.path.join(astrogen.__output_dir__, 'makeflows')
+        fits_dir = os.path.join(astrogen.__resources_dir__, 'fits_files')
+
+        astrogen.Astrogen._clear_generated_files()
+
+        self.assertListEqual(os.listdir(os.listdir(makeflows_dir)), [])
+
+        num_fits = len(glob(fits_dir, '*.fit'))
+        self.assertEqual(num_fits, os.listdir(fits_dir))
+
+    def run_run_makeflow(self):
+        # new ag, since the test one for this class uses tests/fits_files, but
+        # we want resources/fits_files
+        new_ag = astrogen.Astrogen()
+        new_ag._run_makeflow(os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf'))
+
     def tearDown(self):
         config_path = path.join(path.curdir, 'test_config.cfg')
         try:
             os.remove(config_path)
             os.remove(os.path.join(astrogen.__resources_dir__, 'fits_files',
-                                   'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit'))
+                                   'Briol_2011UW158_20150727_061740_TA_FITS.fit'))
+            all_files_in_makeflows_dir = glob(os.path.join(astrogen.__output_dir__,
+                                                           'makeflows', '*'))
+            os.remove(all_files_in_makeflows_dir)
         except OSError:
             pass
 
 
 class TestMakeflowGen(unittest.TestCase):
 
-    def test_makeflow_gen(self):
-        fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
+    def run_batch_makeflow_gen(self):
+        """Makes a makeflow script for a batch of test fits files"""
+        # fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
+        fits_filenames = os.listdir(os.path.join(__test_dir__, 'fits_files'))
 
-        # temporarily copy the test file to the right spot
-        abs_file_path = os.path.join(astrogen.__pkg_root__, os.pardir, 'tests',
-                                     'fits_files', fits_filenames[0])
-        shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
+        # temporarily copy the test files to resources/fits_files
+        for filename in fits_filenames:
+            abs_file_path = os.path.join(__test_dir__, 'fits_files', filename)
+            shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
+
+        # TODO get these from config file in tests dir
+        path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
+        path_to_solve_field = '/gsfs1/xdisk/dsidi/midterm/astrometry.net-0.50/blind/solve-field'
+
+        makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
+
+    def test_makeflow_gen(self):
+        # fits_filenames = ['Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit']
+        fits_filenames = os.listdir(os.path.join(__test_dir__, 'fits_files'))
+
+        # temporarily copy the test files to resources/fits_files
+        for filename in fits_filenames:
+            abs_file_path = os.path.join(__test_dir__, 'fits_files', filename)
+            shutil.copy(abs_file_path, os.path.join(astrogen.__resources_dir__, 'fits_files'))
 
         # TODO get these from config file in tests dir
         path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
