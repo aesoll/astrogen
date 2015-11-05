@@ -149,7 +149,7 @@ class Astrogen(object):
         self._move_makefile_solutions()
 
     @staticmethod
-    def _run_parameter_extraction(self):
+    def _run_parameter_extraction():
         """Runs parameter extraction using stored output of solve-field in the
             batch directory.
         """
