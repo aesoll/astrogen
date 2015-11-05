@@ -70,7 +70,7 @@ class TestAstrogen(unittest.TestCase):
         for data_object in cleaned_objects:
             if current_batch_size < self.max_batch_size:
                 self._add_to_local_batch(data_object)
-                current_batch_size = self._get_dir_size('.')
+                current_batch_size = os.path.getsize(astrogen.__batch_dir__) / 1024 ** 2
             else:
                 # call astronomy.net stuff on this batch
                 self._solve_batch_astrometry()
@@ -82,8 +82,7 @@ class TestAstrogen(unittest.TestCase):
 
                 break  # in test only, stop after first batch
 
-        dir_size = os.path.getsize(astrogen.__batch_dir__) / 1024.
-        self.assertEqual(dir_size, 100)
+        self.assertEqual(current_batch_size, 100)
 
     def test_logging(self):
         try:
