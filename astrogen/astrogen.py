@@ -9,24 +9,23 @@
 #   David Sidi (dsidi@email.arizona.edu)
 #   Adam Soll (adamsoll@email.arizona.edu)
 """
-Preprocess image files in FITS format to be input to Astrometrica.
+Scalably solve astrometry for image files in FITS format to produce
+configuration files for Astrometrica.
 """
-from glob import glob
 import os
-import pdb
 import re
 import subprocess
 import tempfile
 import logging
-import scandir
 import shutil
-import makeflow_gen
 import time
-from config import Config
+import makeflow_gen
+from glob import glob
 from datetime import datetime
+from zipfile import ZipFile
+from config import Config
 from astropy.io import fits
 from irods.session import iRODSSession
-from zipfile import ZipFile
 from configuration_gen import ConfigFile
 
 __pkg_root__ = os.path.dirname(__file__)
@@ -37,10 +36,10 @@ __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
 
 class Astrogen(object):
     """
-    Preprocess image files in FITS format to be input to Astrometrica.
+    Preprocesses image files in FITS format, filtering bad files.
     Retrieves astronomy data in the form of FITS files from iPlant.
-    Runs astrometry on a local batch of files.
-    ---NOT DONE YET---
+    Solves astrometry of a local batch of files, generating (among other things)
+    a working configuration file for Astrometrica.
     """
     def __init__(self):
 
