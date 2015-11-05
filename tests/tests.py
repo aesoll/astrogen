@@ -37,19 +37,24 @@ class TestAstrogen(unittest.TestCase):
     def test_get_cleaned_data_objects(self):
         cleaned_objs = self.ag._get_cleaned_data_objects()
         names = [obj.name for obj in cleaned_objs]
-        # TODO fix with new files in test/fits_files
-        # correct_names = [
-        #     'V47_20141104053006072910.fits',
-        #     'V47_20141104053006356387.fits',
-        #     'V47_20141104053006639865.fits',
-        #     'V47_20141104053006923346.fits',
-        #     'V47_20141104053007206822.fits',
-        #     'V47_20141104053007490300.fits',
-        #     'V47_20141104053007773776.fits',
-        #     'V47_20141104053008057255.fits',
-        #     'V47_20141104053008340735.fits'
-        # ]
-        # self.assertListEqual(names, correct_names)
+        
+        correct_names{
+        Briol_1197Rhodesia_20140630_044345_TA_FITS.fit
+        Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit
+        Briol_1197Rhodesia_20140630_053258_TA_FITS.fit
+        Briol_1197Rhodesia_20140630_055229_TA_FITS.fit
+        Briol_1197Rhodesia_20140630_055229_flatfield_TA_FITS.FIT
+        Briol_1197Rhodesia_20140704_045604_TA_FITS.fit
+        Briol_1197Rhodesia_20140704_052116_TA_FITS.fit
+        Briol_1197Rhodesia_20140704_053610_TA_FITS.fit
+        Briol_1197Rhodesia_20140706_041323_TA_FITS.fit
+        Briol_1197Rhodesia_20140706_042914_TA_FITS.fit
+        Briol_1197Rhodesia_20140706_044914_TA_FITS.fit
+        Briol_1241Dysona_20150214_010819_TA_FITS.fit
+        Briol_1241Dysona_20150214_020103_TA_FITS.fit
+        Briol_1241Dysona_20150214_022401_TA_FITS.fit
+        }
+        self.assertListEqual(names, correct_names)
 
     def test_solve_batch_astronomy(self):
         # TODO this side-effects a lot, test for a run with a single FITS
@@ -189,7 +194,9 @@ class TestMakeflowGen(unittest.TestCase):
         makeflow_gen.makeflow_gen(fits_filenames, path_to_solve_field, path_to_netpbm)
 
         ##
-        # get output of makeflow_gen
+        
+        export PATH=/home/u12/ericlyons/bin/newnetpbm/bin:$PATH
+        correct_output_of_makeflow_gen = 'Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.out : /home/dsidi/fa15/Cyberinfrastructure/astrometrica-gen/resources/fits_files/Briol_1197Rhodesia_20140630_044345_flatfield_TA_FITS.fit /gsfs1/xdisk/dsidi/midterm/astrometry.net-0.50/blind/solve-field'
         #
         makeflow_path = os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf')
         with open(makeflow_path) as f:

@@ -98,6 +98,7 @@ class Astrogen(object):
 
     def _unzipper(self, data_object):
         """
+        Checks if file can be unzip and if it can sends it to resources/fit_files
         """
         with ZipFile(data_object, 'w') as myzip:
             testZip = myzip.testzip()
