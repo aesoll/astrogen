@@ -96,8 +96,10 @@ class Astrogen(object):
 
     # PRIVATE #################################################################
 
-    def _unzipper(data_object):
-        with zipfile.ZipFile(data_object, 'w') as myzip:
+    def _unzipper(self, data_object):
+        """
+        """
+        with ZipFile(data_object, 'w') as myzip:
             testZip = myzip.testzip()
             if testZip == None:  # if testZip is None then there are no bad files
 
@@ -107,6 +109,24 @@ class Astrogen(object):
 
             else:
                 myzip.moveFileToDirectory("Unusable") #move to non working folder
+
+            ZipFile.close()
+
+    def _file_extension_validation(self, fits_directory):
+        """
+        Parses filenames in a directory to determine which files are valid solve-field candidates
+        Files that do not meet criteria are removed
+        """
+        valid_extensions = [
+            "fit", "fits", "FIT", "FITS", "fts"
+        ]
+
+        for fits_file_candidate in os.listdir(fits_directory):
+            if fits_file_candidate.split(".")[1] not in valid_extensions:
+                os.remove(fits_directory + "/" + fits_file_candidate)
+                print("Removing invalid file \"" + fits_file_candidate + "\"...")
+
+        return None
 
     def _solve_batch_astrometry(self):
         """
