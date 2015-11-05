@@ -148,6 +148,7 @@ class Astrogen(object):
         self._run_parameter_extraction()
         self._move_makefile_solutions()
 
+    @staticmethod
     def _run_parameter_extraction(self):
         """Runs parameter extraction using stored output of solve-field in the
             batch directory.
@@ -167,7 +168,8 @@ class Astrogen(object):
                 fits_path = os.path.join(dir_name, fits_filename)
                 ConfigFile().process(fits_path, output_filename)
 
-    def _run_makeflow(self, makeflow_script_name):
+    @staticmethod
+    def _run_makeflow(makeflow_script_name):
         """Runs a makeflow.
 
         Side-effects by generating several files for each fits file in the
@@ -233,7 +235,8 @@ class Astrogen(object):
         # subprocess.check_output('sleep 5', shell=True)  # not needed
         subprocess.check_output(makeflow_cmd, shell=True)
 
-    def _move_makefile_solutions(self):
+    @staticmethod
+    def _move_makefile_solutions():
         """Move makeflow solution files to their directory"""
         output_src = os.path.join(__resources_dir__, 'fits_files')
         other_soln_files_dst = os.path.join(__output_dir__, 'other_solution_files')
@@ -273,7 +276,7 @@ class Astrogen(object):
             password=self.password,
             zone=iplant_params['zone']
         )
-        coll = sess.collections.get(iplant_params['iplant_path'])
+        coll = sess.collections.get(iplant_params['iplant_filepath'])
         data_objects = coll.data_objects
         cleaned_data_objects = \
             filter(lambda x: x.name.lower().endswith('.fits') or
