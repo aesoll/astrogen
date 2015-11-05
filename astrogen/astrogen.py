@@ -344,7 +344,9 @@ class Astrogen(object):
             with data_object.open('r') as irods_f:
                 hdus = fits.open(irods_f)
                 if Astrogen._passes_muster(hdus):
-                    hdus.writeto(os.path.join(__batch_dir__, name))
+                    filepath = os.path.join(__batch_dir__, name)
+                    with open(filepath, 'w') as f:
+                        hdus.writeto(f)
         except IOError:
             logging.info('File rejected: {}.'.format(data_object.name))
 
