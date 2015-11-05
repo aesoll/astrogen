@@ -323,7 +323,7 @@ class Astrogen(object):
         return datetime(*datetime_numbers)
 
     @staticmethod
-    def _passes_muster(self, hdus):
+    def _passes_muster(hdus):
         """Up or down vote on a list of hdus. Currently a no-op."""
         # TODO useful for later, if we decide to filter
         # header = hdus[0].header  # first element is primary HDU, we don't use others
