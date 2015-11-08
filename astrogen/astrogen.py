@@ -261,21 +261,20 @@ class Astrogen(object):
         # copy the FITS files we modified, move the cfg files we generated
         try:
            for fits_file in glob(os.path.join(output_src, '*.fit')):
-               shutil.move(fits_file, modified_fits_dst)
-        except shutil.Error:
-           base_fits_filename = os.path.basename(fits_file)
-           shutil.copyfile(fits_file, os.path.join(modified_fits_dst, base_fits_filename))  # overwrites
-           os.remove(fits_file)
-           logging.error('Overwrote file {}'.format(fits_file))
+               base_fits_filename = os.path.basename(fits_file)
+               shutil.copyfile(fits_file, os.path.join(modified_fits_dst, base_fits_filename))  # overwrites
+               os.remove(fits_file)
+        except:
+           logging.error('Error moving file {}'.format(fits_file))
 
         try:
            for cfg_file in glob(os.path.join(output_src, '*.cfg')):
-               shutil.move(cfg_file, config_dst)
-        except shutil.Error:
-           base_config_filename = os.path.basename(cfg_file)
-           shutil.copyfile(cfg_file, os.path.join(config_dst, base_config_filename))  # overwrites
+               base_config_filename = os.path.basename(cfg_file)
+               shutil.copyfile(cfg_file, os.path.join(config_dst, base_config_filename))  # overwrites
+               os.remove(cfg_file)
+        except:
            os.remove(cfg_file)
-           logging.error('Overwrote file {}'.format(cfg_file))
+           logging.error('Error moving file {}'.format(cfg_file))
 
         other_solution_files = \
                 glob(os.path.join(output_src, '*.out')) + \
@@ -288,12 +287,11 @@ class Astrogen(object):
 
         try:
            for filename in other_solution_files:
-               shutil.move(filename, other_soln_files_dst)
+               base_filename = os.path.basename(filename)
+               shutil.copyfile(filename, os.path.join(other_soln_files_dst, base_filename))  # overwrites
+               os.remove(filename)
         except shutil.Error:
-           base_filename = os.path.basename(filename)
-           shutil.copyfile(filename, os.path.join(other_soln_files_dst, base_filename))  # overwrites
-           os.remove(filename)
-           logging.error('Overwrote file {}'.format(filename))
+           logging.error('Error moving file {}'.format(filename))
 
     def _get_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
