@@ -57,7 +57,7 @@ class TestAstrogen(unittest.TestCase):
         # ]
         # self.assertListEqual(names, correct_names)
 
-    def test_solve_batch_astraometry(self):
+    def test_solve_batch_astrometry(self):
         # TODO this side-effects a lot, test for a run with a single FITS
         # file in a test fits_files dir
         self.ag._solve_batch_astrometry()

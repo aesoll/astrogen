@@ -82,13 +82,12 @@ class Astrogen(object):
 
         current_batch_size = 0
         for data_object in cleaned_data_objects:
-            pdb.set_trace()
             if current_batch_size < self.max_batch_size:
                 self._add_to_local_batch(data_object)
                 #current_batch_size = os.path.getsize(__batch_dir__) / 1024. ** 2
                 current_batch_size = \
                    sum(
-                         [os.path.getsize(f) for f in os.listdir('.') 
+                         [os.path.getsize(f) for f in os.listdir(__batch_dir__) 
                             if os.path.isfile(f)]
                    ) / 1024. ** 2
             else:
@@ -240,12 +239,15 @@ class Astrogen(object):
         print ('Now calling makeflow and pbs_submit_workers (you may want to '
               'watch the resources/fits_files directory for .out files in a '
               'couple of minutes) ...')
-        pbs_output_dst = open(__resources_dir__, 'pbs_output')  # TODO add date to fn
-        makeflow_output_dst = open(__resources_dir__, 'makeflow_output')  # TODO add date
-        subprocess.check_output(pbs_submit_cmd, shell=True, stdout=pbs_output_dst)
-        # subprocess.check_output('sleep 5', shell=True)  # not needed
-        subprocess.check_output(makeflow_cmd, shell=True, stdout=makeflow_output_dst)
+        pbs_output_dst = os.path.join(__resources_dir__, 'pbs_output')  # TODO add date to fn
+        makeflow_output_dst = os.path.join(__resources_dir__, 'makeflow_output')  # TODO add date
+
+        with open(pbs_output_dst, 'w') as f1, open(makeflow_output_dst, 'w') as f2:
+           subprocess.Popen(pbs_submit_cmd, shell=True, stdout=f1)
+           subprocess.Popen(makeflow_cmd, shell=True, stdout=f2)
+
         print ('... batch complete.')
+        t = time.localtime()
         logging.info('finished a batch on {day}-{mo}-{year} at {hour}:{min}:{sec}'.format(
                 day=t.tm_mday, mo=t.tm_mon, year=t.tm_year, hour=t.tm_hour,
                 min=t.tm_min, sec=t.tm_sec))
