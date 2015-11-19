@@ -12,6 +12,7 @@
 Scalably solve astrometry for image files in FITS format to produce
 configuration files for Astrometrica.
 """
+import getpass
 import os
 import re
 import subprocess

@@ -1,7 +1,7 @@
 from glob import glob
 import unittest
 import shutil
-from irods.exception import CollectionDoesNotExist
+from irods.exception import CollectionDoesNotExist, DataObjectDoesNotExist
 import astrogen
 import os
 import config
@@ -147,7 +147,7 @@ class TestAstrogen(unittest.TestCase):
             # check that an object exists
             try:
                 obj = coll.data_objects[0]
-            except IndexError:
+            except IndexError, DataObjectDoesNotExist:
                 self.fail("Object not created in iPlant.")
 
             finally:
