@@ -260,10 +260,8 @@ class Astrogen(object):
          portable (even though it would be simpler).
         """
         def mk_irods_path(leaf_dir):
-            pdb.set_trace()
             return os.path.join(
                 self.iplant_params['iplant_write_path'],
-                'modified_fits',
                 leaf_dir
             )
 
@@ -274,6 +272,7 @@ class Astrogen(object):
         sess = self._get_irods_session()
         output_src = os.path.join(__resources_dir__, 'fits_files')
 
+        pdb.set_trace()
         fits_file_paths = glob(os.path.join(output_src, '*.fit'))
         cfg_file_paths = glob(os.path.join(output_src, '*.cfg'))
         other_soln_file_paths = \
@@ -285,14 +284,15 @@ class Astrogen(object):
             glob(os.path.join(output_src, '*.rdls')) + \
             glob(os.path.join(output_src, '*.solved'))
 
-        lists_of_file_paths = fits_file_paths + cfg_file_paths + other_soln_file_paths
+        # list of lists created by combining globs
+        lists_of_file_paths = [fits_file_paths, cfg_file_paths, other_soln_file_paths]
 
         irods_fits_output_dst = mk_irods_path('modified_fits')
         irods_cfg_output_dst = mk_irods_path('astrometrica_config_files')
         irods_other_soln_output_dst = mk_irods_path('other_solution_files')
 
-        output_dsts = irods_fits_output_dst + irods_cfg_output_dst + \
-                      irods_other_soln_output_dst
+        output_dsts = [irods_fits_output_dst, irods_cfg_output_dst,
+                       irods_other_soln_output_dst]
 
         for soln_file_paths, output_dst in zip(lists_of_file_paths, output_dsts):
             self._move_to_irods_store(sess, output_src, soln_file_paths, output_dst)
@@ -307,22 +307,19 @@ class Astrogen(object):
             zone=iplant_params['zone']
         )
 
-    def _move_to_irods_store(self, sess, output_src, glob, output_irods_dst):
+    def _move_to_irods_store(self, sess, output_src, files_glob, output_irods_dst):
         """Move files to an irods store.
 
         :param output_irods_dst:
-        :param glob:
+        :param files_glob:
         :param output_src:
         :param sess:
         :return:
         """
-        for filename in glob:
+        for filename in files_glob:
             basename = os.path.basename(filename)
-            iplant_filepath = os.path.join(
-                self.iplant_params['iplant_write_path'],
-                output_irods_dst,
-                basename
-            )
+            iplant_filepath = os.path.join(output_irods_dst, basename)
+            pdb.set_trace()
             obj = sess.data_objects.get(iplant_filepath)
 
             with open(obj, 'w') as f, open(filename, 'r') as g:
