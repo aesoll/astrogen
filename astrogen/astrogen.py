@@ -272,7 +272,6 @@ class Astrogen(object):
         sess = self._get_irods_session()
         output_src = os.path.join(__resources_dir__, 'fits_files')
 
-        pdb.set_trace()
         fits_file_paths = glob(os.path.join(output_src, '*.fit'))
         cfg_file_paths = glob(os.path.join(output_src, '*.cfg'))
         other_soln_file_paths = \
