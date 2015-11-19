@@ -260,10 +260,8 @@ class Astrogen(object):
          portable (even though it would be simpler).
         """
         def mk_irods_path(leaf_dir):
-            pdb.set_trace()
             return os.path.join(
                 self.iplant_params['iplant_write_path'],
-                'modified_fits',
                 leaf_dir
             )
 
@@ -285,6 +283,7 @@ class Astrogen(object):
             glob(os.path.join(output_src, '*.rdls')) + \
             glob(os.path.join(output_src, '*.solved'))
 
+        # list of lists created by combining globs
         lists_of_file_paths = fits_file_paths + cfg_file_paths + other_soln_file_paths
 
         irods_fits_output_dst = mk_irods_path('modified_fits')
@@ -307,22 +306,19 @@ class Astrogen(object):
             zone=iplant_params['zone']
         )
 
-    def _move_to_irods_store(self, sess, output_src, glob, output_irods_dst):
+    def _move_to_irods_store(self, sess, output_src, files_glob, output_irods_dst):
         """Move files to an irods store.
 
         :param output_irods_dst:
-        :param glob:
+        :param files_glob:
         :param output_src:
         :param sess:
         :return:
         """
-        for filename in glob:
+        for filename in files_glob:
             basename = os.path.basename(filename)
-            iplant_filepath = os.path.join(
-                self.iplant_params['iplant_write_path'],
-                output_irods_dst,
-                basename
-            )
+            iplant_filepath = os.path.join(output_irods_dst, basename)
+            pdb.set_trace()
             obj = sess.data_objects.get(iplant_filepath)
 
             with open(obj, 'w') as f, open(filename, 'r') as g:
