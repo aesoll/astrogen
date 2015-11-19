@@ -29,7 +29,8 @@ class TestAstrogen(unittest.TestCase):
             'host': 'bitol.iplantcollaborative.org',
             'port': 1247,
             'zone': 'iplant',
-            'iplant_path': '/iplant/home/david_sidi/astrometry/test_fits'
+            'iplant_path': '/iplant/home/david_sidi/astrometry/test_fits',
+            'iplant_write_path': '/iplant/home/david_sidi/astrometry/output'
         }
         ag.path_to_netpbm = '/home/u12/ericlyons/bin/newnetpbm/bin'
         ag.path_to_solve_field = '/gsfs1/xdisk/dsidi/midterm/astrometry.net\-0.50/blind/solve-field'
@@ -124,10 +125,13 @@ class TestAstrogen(unittest.TestCase):
         filenames = ['test_file.' + extension for extension in extensions]
         for fn in filenames:
             filepath = os.path.join(astrogen.__resources_dir__, fn)
-            os.mknod(filepath)
+            try:
+               os.mknod(filepath)
+            except OSError:  # if file exists
+               pass
 
         # try movin' 'em
-        self.ag._move_makefile_solutions()
+        self.ag._move_makeflow_solutions()
 
         # check that they're in the store now
         sess = self.ag._get_irods_session()

@@ -254,13 +254,13 @@ class Astrogen(object):
                 day=t.tm_mday, mo=t.tm_mon, year=t.tm_year, hour=t.tm_hour,
                 min=t.tm_min, sec=t.tm_sec))
 
-    @staticmethod
-    def _move_makeflow_solutions():
+    def _move_makeflow_solutions(self):
         """Move makeflow solution files to their directory
         Issuing shell commands like `imv` is not done because it is not
          portable (even though it would be simpler).
         """
         def mk_irods_path(leaf_dir):
+            pdb.set_trace()
             return os.path.join(
                 self.iplant_params['iplant_write_path'],
                 'modified_fits',
@@ -320,7 +320,7 @@ class Astrogen(object):
             basename = os.path.basename(filename)
             iplant_filepath = os.path.join(
                 self.iplant_params['iplant_write_path'],
-                'modified_fits',
+                output_irods_dst,
                 basename
             )
             obj = sess.data_objects.get(iplant_filepath)
