@@ -12,14 +12,15 @@
 Scalably solve astrometry for image files in FITS format to produce
 configuration files for Astrometrica.
 """
-import getpass
 import os
 import re
 import subprocess
 import tempfile
 import logging
+import shutil
 import time
 import makeflow_gen
+import pdb
 from glob import glob
 from datetime import datetime
 from zipfile import ZipFile
@@ -29,8 +30,8 @@ from irods.session import iRODSSession
 from configuration_gen import ConfigFile
 
 __pkg_root__ = os.path.dirname(__file__)
-__resources_dir__ = os.path.abspath(os.path.join(__pkg_root__, os.pardir, 'resources'))
-__output_dir__ = os.path.abspath(os.path.join(__pkg_root__, os.pardir, 'output'))
+__resources_dir__ = os.path.join(__pkg_root__, os.pardir, 'resources')
+__output_dir__ = os.path.join(__pkg_root__, os.pardir, 'output')
 __batch_dir__ = os.path.join(__resources_dir__, 'fits_files')
 
 
@@ -83,13 +84,18 @@ class Astrogen(object):
         for data_object in cleaned_data_objects:
             if current_batch_size < self.max_batch_size:
                 self._add_to_local_batch(data_object)
-                current_batch_size = os.path.getsize(__batch_dir__) / 1024. ** 2
+                #current_batch_size = os.path.getsize(__batch_dir__) / 1024. ** 2
+                current_batch_size = \
+                   sum(
+                         [os.path.getsize(f) for f in os.listdir(__batch_dir__) 
+                            if os.path.isfile(f)]
+                   ) / 1024. ** 2
             else:
                 # call astronomy.net stuff on this batch
                 self._solve_batch_astrometry()
 
                 # clear this batch from directory
-                all_batched_fits_files = glob(os.path.join(__batch_dir__, '*.fits'))
+                all_batched_fits_files = glob(os.path.join(__batch_dir__, '*'))
                 os.remove(all_batched_fits_files)
                 current_batch_size = 0
 
@@ -145,7 +151,7 @@ class Astrogen(object):
         makeflow_path = os.path.join(__output_dir__, 'makeflows', 'output.mf')
         self._run_makeflow(makeflow_path)
         self._run_parameter_extraction()
-        self._move_makefile_solutions()
+        self._move_makeflow_solutions()
 
     @staticmethod
     def _run_parameter_extraction():
@@ -230,13 +236,26 @@ class Astrogen(object):
         ##
         # call commands
         #
-        subprocess.check_output(pbs_submit_cmd, shell=True)
-        # subprocess.check_output('sleep 5', shell=True)  # not needed
-        subprocess.check_output(makeflow_cmd, shell=True)
+        print ('Now calling makeflow and pbs_submit_workers (you may want to '
+              'watch the resources/fits_files directory for .out files in a '
+              'couple of minutes) ...')
+        pbs_output_dst = os.path.join(__resources_dir__, 'pbs_output')  # TODO add date to fn
+        makeflow_output_dst = os.path.join(__resources_dir__, 'makeflow_output')  # TODO add date
+        
 
-    def _move_makefile_solutions(self):
+        with open(pbs_output_dst, 'w') as f1, open(makeflow_output_dst, 'w') as f2:
+           subprocess.Popen(pbs_submit_cmd, shell=True, stdout=f1)
+           subprocess.Popen(makeflow_cmd, shell=True, stdout=f2)
+
+        print ('... batch complete.')
+        t = time.localtime()
+        logging.info('finished a batch on {day}-{mo}-{year} at {hour}:{min}:{sec}'.format(
+                day=t.tm_mday, mo=t.tm_mon, year=t.tm_year, hour=t.tm_hour,
+                min=t.tm_min, sec=t.tm_sec))
+
+    @staticmethod
+    def _move_makeflow_solutions():
         """Move makeflow solution files to their directory
-
         Issuing shell commands like `imv` is not done because it is not
          portable (even though it would be simpler).
         """
@@ -382,10 +401,10 @@ class Astrogen(object):
         try:
             name = data_object.name
             # write to temp. local file
-            with data_object.open('r') as irods_f:
-                hdus = fits.open(irods_f)
-                if Astrogen._passes_muster(hdus):
-                    hdus.writeto(os.path.join(__batch_dir__, name))
+            filepath = os.path.join(__batch_dir__, name)
+            with open(filepath, 'w') as f:
+                with data_object.open('r') as irods_f:
+                   f.write(irods_f.read())
         except IOError:
             logging.info('File rejected: {}.'.format(data_object.name))
 

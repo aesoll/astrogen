@@ -1,12 +1,10 @@
-# astrometriconf
+# astrogen
 A program to modify FITS file metadata for the purpose of generating Astrometrica compatible configuration files. 
 
 ## Requirements
 * Python 2.7 + click
 * Working solve-field from astronomy.net on your path
 * pyfits
-
-## Installation
 
 ## How to run
 An easy way to see the functioning of the program is to run the _test_solve_astrometry unit test. This takes the batch of FITS files in the tests/fits_files directory and generates a makeflow script, runs that script on the compute nodes, extracts parameters from the results of that run and finally deposits the output in the subdirectories of output.
