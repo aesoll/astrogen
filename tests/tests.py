@@ -1,6 +1,7 @@
 from glob import glob
 import unittest
 import shutil
+from irods.exception import CollectionDoesNotExist
 import astrogen
 import os
 import config
@@ -100,6 +101,60 @@ class TestAstrogen(unittest.TestCase):
                                  zone=__irods_server_zone__)
         self.test_coll = self.sess.collections.get(self.test_coll_path)
         self.sess.cleanup()
+
+    def test_iplant_deposition(self):
+        # temporarily reset resources directory
+        orig_resources_dir = astrogen.__resources_dir__
+        astrogen.__resources_dir__ = __test_dir__
+
+        # add temporarily files with the extensions we're interested in
+        extensions = [
+            'fit',
+            'cfg',
+            'out',
+            'axy',
+            'xyls',
+            'match',
+            'new',
+            'rdls',
+            'solved'
+        ]
+
+        # used again, so store filenames
+        filenames = ['test_file.' + extension for extension in extensions]
+        for fn in filenames:
+            filepath = os.path.join(astrogen.__resources_dir__, fn)
+            os.mknod(filepath)
+
+        # try movin' 'em
+        self.ag._move_makefile_solutions()
+
+        # check that they're in the store now
+        sess = self.ag._get_irods_session()
+        iplant_path = self.ag.iplant_params['iplant_write_path']
+        leaves = ('modified_fits', 'astrometrica_config_files',
+                  'other_solution_files')
+
+        for leaf_dir in leaves:
+            dirpath = os.path.join(iplant_path, leaf_dir)
+
+            # check that dirs were created
+            try:
+                coll = sess.collections.get(dirpath)
+            except CollectionDoesNotExist:
+                self.fail('iPlant directory not created.')
+
+            # check that an object exists
+            try:
+                obj = coll.data_objects[0]
+            except IndexError:
+                self.fail("Object not created in iPlant.")
+
+            finally:
+                # clean up temporary directories
+                coll.remove(recurse=True, force=True)
+                # return resources directory to its original value
+                astrogen.__resources_dir__ = orig_resources_dir
 
     def test_run_makeflow(self):
         actual_stdout = self.ag._run_makeflow(os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf'))

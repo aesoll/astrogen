@@ -12,12 +12,12 @@
 Scalably solve astrometry for image files in FITS format to produce
 configuration files for Astrometrica.
 """
+import getpass
 import os
 import re
 import subprocess
 import tempfile
 import logging
-import shutil
 import time
 import makeflow_gen
 from glob import glob
@@ -55,7 +55,7 @@ class Astrogen(object):
 
         # uname and pword are given at command line
         self.user = raw_input("Enter iPlant username: ")
-        self.password = raw_input("Enter iPlant password: ")
+        self.password = getpass.getpass("Enter iPlant password: ")
 
         # set up temporary local file directory for batches
         tempfile.tempdir = os.path.join(__pkg_root__, 'resources', 'fits_files')
@@ -234,47 +234,88 @@ class Astrogen(object):
         # subprocess.check_output('sleep 5', shell=True)  # not needed
         subprocess.check_output(makeflow_cmd, shell=True)
 
-    @staticmethod
-    def _move_makefile_solutions():
-        """Move makeflow solution files to their directory"""
-        output_src = os.path.join(__resources_dir__, 'fits_files')
-        other_soln_files_dst = os.path.join(__output_dir__, 'other_solution_files')
-        config_dst = os.path.join(__output_dir__, 'config_files')
-        modified_fits_dst = os.path.join(__output_dir__, 'modified_fits_files')
+    def _move_makefile_solutions(self):
+        """Move makeflow solution files to their directory
 
-        # copy the FITS files we modified, move the cfg files we generated
-        for fits_file in glob(os.path.join(output_src, '*.fit')):
-            shutil.copy(fits_file, modified_fits_dst)
+        Issuing shell commands like `imv` is not done because it is not
+         portable (even though it would be simpler).
+        """
+        def mk_irods_path(leaf_dir):
+            return os.path.join(
+                self.iplant_params['iplant_write_path'],
+                'modified_fits',
+                leaf_dir
+            )
 
-        for cfg_file in glob(os.path.join(output_src, '*.cfg')):
-            shutil.move(cfg_file, config_dst)
-
-        other_solution_files = \
-                glob(os.path.join(output_src, '*.out')) + \
-                glob(os.path.join(output_src, '*.axy')) + \
-                glob(os.path.join(output_src, '*.xyls')) + \
-                glob(os.path.join(output_src, '*.match')) + \
-                glob(os.path.join(output_src, '*.new')) +  \
-                glob(os.path.join(output_src, '*.rdls')) +  \
-                glob(os.path.join(output_src, '*.solved'))
-
-        for filename in other_solution_files:
-            shutil.move(filename, other_soln_files_dst)
-
-    def _get_data_objects(self):
-        """Get and clean data objects from an iRODS collection on iPlant."""
         iplant_params = self.iplant_params
-
-        logging.info("Logging in to {} as {} ...".
+        logging.info("Writing data to {} as {} ...".
                      format(iplant_params['host'], self.user))
 
-        sess = iRODSSession(
+        sess = self._get_irods_session()
+        output_src = os.path.join(__resources_dir__, 'fits_files')
+
+        fits_file_paths = glob(os.path.join(output_src, '*.fit'))
+        cfg_file_paths = glob(os.path.join(output_src, '*.cfg'))
+        other_soln_file_paths = \
+            glob(os.path.join(output_src, '*.out')) + \
+            glob(os.path.join(output_src, '*.axy')) + \
+            glob(os.path.join(output_src, '*.xyls')) + \
+            glob(os.path.join(output_src, '*.match')) + \
+            glob(os.path.join(output_src, '*.new')) + \
+            glob(os.path.join(output_src, '*.rdls')) + \
+            glob(os.path.join(output_src, '*.solved'))
+
+        lists_of_file_paths = fits_file_paths + cfg_file_paths + other_soln_file_paths
+
+        irods_fits_output_dst = mk_irods_path('modified_fits')
+        irods_cfg_output_dst = mk_irods_path('astrometrica_config_files')
+        irods_other_soln_output_dst = mk_irods_path('other_solution_files')
+
+        output_dsts = irods_fits_output_dst + irods_cfg_output_dst + \
+                      irods_other_soln_output_dst
+
+        for soln_file_paths, output_dst in zip(lists_of_file_paths, output_dsts):
+            self._move_to_irods_store(sess, output_src, soln_file_paths, output_dst)
+
+    def _get_irods_session(self):
+        iplant_params = self.iplant_params
+        return iRODSSession(
             host=iplant_params['host'],
             port=iplant_params['port'],
             user=self.user,
             password=self.password,
             zone=iplant_params['zone']
         )
+
+    def _move_to_irods_store(self, sess, output_src, glob, output_irods_dst):
+        """Move files to an irods store.
+
+        :param output_irods_dst:
+        :param glob:
+        :param output_src:
+        :param sess:
+        :return:
+        """
+        for filename in glob:
+            basename = os.path.basename(filename)
+            iplant_filepath = os.path.join(
+                self.iplant_params['iplant_write_path'],
+                'modified_fits',
+                basename
+            )
+            obj = sess.data_objects.get(iplant_filepath)
+
+            with open(obj, 'w') as f, open(filename, 'r') as g:
+                f.write(g)
+
+    def _get_data_objects(self):
+        """Get and clean data objects from an iRODS collection on iPlant."""
+        iplant_params = self.iplant_params
+
+        logging.info("Reading data from {} as {} ...".
+                     format(iplant_params['host'], self.user))
+
+        sess = self._get_irods_session()
         coll = sess.collections.get(iplant_params['iplant_filepath'])
         data_objects = coll.data_objects
         # cleaned_data_objects = \
