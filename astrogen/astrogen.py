@@ -20,6 +20,7 @@ import tempfile
 import logging
 import shutil
 import time
+from irods.exception import CAT_UNKNOWN_COLLECTION
 import makeflow_gen
 import pdb
 from glob import glob
@@ -272,7 +273,6 @@ class Astrogen(object):
         sess = self._get_irods_session()
         output_src = os.path.join(__resources_dir__, 'fits_files')
 
-        pdb.set_trace()
         fits_file_paths = glob(os.path.join(output_src, '*.fit'))
         cfg_file_paths = glob(os.path.join(output_src, '*.cfg'))
         other_soln_file_paths = \
@@ -320,10 +320,17 @@ class Astrogen(object):
             basename = os.path.basename(filename)
             iplant_filepath = os.path.join(output_irods_dst, basename)
             pdb.set_trace()
-            obj = sess.data_objects.get(iplant_filepath)
+            try:  # create irods file to store the local file
+                obj = sess.data_objects.create(iplant_filepath)
+            except CAT_UNKNOWN_COLLECTION:  # create dir as needed
+                sess.collections.create(output_irods_dst)
+                obj = sess.data_objects.create(iplant_filepath)
 
+            # copy the local file
             with open(obj, 'w') as f, open(filename, 'r') as g:
                 f.write(g)
+
+            # TODO rm local file
 
     def _get_data_objects(self):
         """Get and clean data objects from an iRODS collection on iPlant."""
