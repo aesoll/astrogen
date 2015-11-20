@@ -124,7 +124,7 @@ class TestAstrogen(unittest.TestCase):
         # used again, so store filenames
         filenames = ['test_file.' + extension for extension in extensions]
         for fn in filenames:
-            filepath = os.path.join(astrogen.__resources_dir__, fn)
+            filepath = os.path.join(astrogen.__resources_dir__, 'fits_files', fn)
             try:
                os.mknod(filepath)
             except OSError:  # if file exists
@@ -144,6 +144,7 @@ class TestAstrogen(unittest.TestCase):
 
             # check that dirs were created
             try:
+                pdb.set_trace()
                 coll = sess.collections.get(dirpath)
             except CollectionDoesNotExist:
                 self.fail('iPlant directory not created.')
@@ -154,11 +155,11 @@ class TestAstrogen(unittest.TestCase):
             except IndexError, DataObjectDoesNotExist:
                 self.fail("Object not created in iPlant.")
 
-            finally:
+            #finally:
                 # clean up temporary directories
-                coll.remove(recurse=True, force=True)
+                #coll.remove(recurse=True, force=True)
                 # return resources directory to its original value
-                astrogen.__resources_dir__ = orig_resources_dir
+                #astrogen.__resources_dir__ = orig_resources_dir
 
     def test_run_makeflow(self):
         actual_stdout = self.ag._run_makeflow(os.path.join(astrogen.__output_dir__, 'makeflows', 'output.mf'))

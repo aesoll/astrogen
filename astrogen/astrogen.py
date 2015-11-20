@@ -310,25 +310,29 @@ class Astrogen(object):
     def _move_to_irods_store(self, sess, output_src, files_glob, output_irods_dst):
         """Move files to an irods store.
 
+        Note: overwrites files that are identically named.
+
         :param output_irods_dst:
         :param files_glob:
         :param output_src:
         :param sess:
         :return:
         """
+        try:
+            sess.collections.create(output_irods_dst)
+        except:  # TODO get exception name
+            pass
+            
         for filename in files_glob:
             basename = os.path.basename(filename)
             iplant_filepath = os.path.join(output_irods_dst, basename)
-            pdb.set_trace()
-            try:  # create irods file to store the local file
-                obj = sess.data_objects.create(iplant_filepath)
-            except CAT_UNKNOWN_COLLECTION:  # create dir as needed
-                sess.collections.create(output_irods_dst)
-                obj = sess.data_objects.create(iplant_filepath)
+
+            # create irods file to store the local file
+            obj = sess.data_objects.create(iplant_filepath)
 
             # copy the local file
-            with open(obj, 'w') as f, open(filename, 'r') as g:
-                f.write(g)
+            with obj.open('w+') as f, open(filename, 'r') as g:
+                f.write(g.read())
 
             # TODO rm local file
 
