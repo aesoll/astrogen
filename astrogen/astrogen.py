@@ -20,7 +20,7 @@ import tempfile
 import logging
 import shutil
 import time
-from irods.exception import CAT_UNKNOWN_COLLECTION
+from irods.exception import CAT_UNKNOWN_COLLECTION, UserInputException
 import makeflow_gen
 import pdb
 from glob import glob
@@ -328,7 +328,14 @@ class Astrogen(object):
             iplant_filepath = os.path.join(output_irods_dst, basename)
 
             # create irods file to store the local file
-            obj = sess.data_objects.create(iplant_filepath)
+            try:
+                obj = sess.data_objects.create(iplant_filepath)
+            except UserInputException as e: 
+               logging.info("File {} not moved. Exception details: {}".
+                     format(filename, e))
+               continue
+            finally:
+               os.remove(filename)
 
             # copy the local file
             with obj.open('w+') as f, open(filename, 'r') as g:
